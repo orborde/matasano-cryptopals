@@ -22,8 +22,56 @@ simple rule of thumb:
 // ------------------------------------------------------------
 """
 
-def h2b
+INPUT_1 = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
+OUTPUT_1 = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
 
+import doctest
+import itertools
+
+# I'm learning Py3 as I go here. I see that this ridiculous hack is
+# still necessary...
+# http://stackoverflow.com/questions/5850536/how-to-chunk-a-list-in-python-3
+def grouper(n, iterable, padvalue=None):
+  "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
+  return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
+
+def h2b(s):
+    """Converts a hex string to a byte array."""
+    assert(len(s)%2 == 0)
+    # Divide into 2-char chunks and convert to hex!
+    return bytearray(int(chunk, 16) for chunk in grouper(2, s))
+
+B64_LOOKUP = ''.join(
+    [chr(ord('A') + i) for i in range(26)] +
+    [chr(ord('a') + i) for i in range(26)] +
+    [chr(ord('0') + i) for i in range(10)]) + '+/'
+def b2b64(bytedata):
+    """bytes object -> b64 string.
+    
+    >>> OUTPUT_1 == b2b64(h2b(INPUT_1))
+    True
+    """
+    # Gah, I remember how much of a pain this was now.
+
+    # Zero-pad. This saves writing some extra checking later.
+    # 3 bytes -> 24 bits -> 4 6bit chunks
+    # Therefore, pad out to a multiple of 3 bytes.
+    while len(bytedata) % 3:
+        bytedata = bytedata + bytes(1)
+
+    # Work in groups of 3 bytes, which lets us do a pretty simple
+    # mask-and-shift loop.
+    output = []
+    for a,b,c in grouper(3, bytedata):
+        # Merge into a big ol' int
+        piece = a << 16 + b << 8 + c
+        # Mask off the highest 6 bits, look up, and output. Do this 4
+        # times (remember how we zero-padded?)
+        for left_shift in [0, 6, 12, 18]:
+            # The left shift helpfully strips off everything to the left of the target bits, so we can do a simple right-shift to 
+            idx = (piece << left_shift) >>
+
+"""
 2. Fixed XOR
 
 Write a function that takes two equal-length buffers and produces
@@ -171,3 +219,8 @@ the same 16 byte ciphertext.
 
 // ------------------------------------------------------------
 """
+
+
+
+if __name__=='__main__':
+    doctest.testmod()
