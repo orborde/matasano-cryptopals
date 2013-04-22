@@ -164,6 +164,27 @@ def xorchar(char, vec):
 
 INPUT_3 = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
+DICT='/usr/share/dict/words'
+print('Loading', DICT, 'for an English language model...')
+words = set()
+with open(DICT, 'r') as f:
+    for l in f:
+        words.add(l.strip().lower())
+print ('...dictionary loaded.', len(words), 'words')
+
+
+def english_metric(vec):
+    """Estimates how Englishy the UTF-8 decoding of 'vec' is.
+
+    Score is how many of the characters can be decoded to dictionary
+    words or other printable characters. Prior to attempting to decode
+    words, all characters besides letters and apostrophes are replaced
+    with spaces.
+    """
+    
+    
+    
+
 def crack_xorchar(vec):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
     for key in range(256):
