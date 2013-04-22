@@ -39,13 +39,13 @@ def h2b(s):
     """Converts a hex string to a byte array."""
     assert(len(s)%2 == 0)
     # Divide into 2-char chunks and convert to hex!
-    return bytearray(int(chunk, 16) for chunk in grouper(2, s))
+    return bytearray(int(chunk, 16) for chunk in ''.join(grouper(2, s)))
 
 B64_LOOKUP = ''.join(
     [chr(ord('A') + i) for i in range(26)] +
     [chr(ord('a') + i) for i in range(26)] +
     [chr(ord('0') + i) for i in range(10)]) + '+/'
-def b2b64(bytedata):
+def b2b64(input_bytedata):
     """bytes object -> b64 string.
     
     >>> OUTPUT_1 == b2b64(h2b(INPUT_1))
@@ -56,6 +56,7 @@ def b2b64(bytedata):
     # Zero-pad. This saves writing some extra checking later.
     # 3 bytes -> 24 bits -> 4 6bit chunks
     # Therefore, pad out to a multiple of 3 bytes.
+    bytedata = input_bytedata
     while len(bytedata) % 3:
         bytedata = bytedata + bytes(1)
 
@@ -67,9 +68,25 @@ def b2b64(bytedata):
         piece = a << 16 + b << 8 + c
         # Mask off the highest 6 bits, look up, and output. Do this 4
         # times (remember how we zero-padded?)
-        for left_shift in [0, 6, 12, 18]:
-            # The left shift helpfully strips off everything to the left of the target bits, so we can do a simple right-shift to 
-            idx = (piece << left_shift) >>
+        for right_shift in [18, 12, 6, 0]:
+            b64_byte = (piece >> right_shift) & 0x3F  # 0x3F = 0b00111111
+            output.append(B64_LOOKUP(b64_byte))
+    
+    # So that we don't wind up with extraneous NULs on the end of the
+    # decoded b64, calculate how many bytes of b64 are actually needed
+    # to represent the original bytes, and trim the output to that.
+    #
+    # (The following is a gross misrepresentation of math.ceil(), but
+    # it's done this way to make sure that the calculation is correct
+    # in the face of any possible floating-point roundoff madness.)
+    #
+    # b64_length = math.ceil(len(input_bytes)*8/6)
+    b64_length = (len(input_bytes)*8)/6
+    if (b64_length*8) % 6:
+        b64_length += 1
+
+    return ''.join(output[:b64_length])
+
 
 """
 2. Fixed XOR
