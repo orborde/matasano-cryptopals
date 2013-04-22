@@ -41,6 +41,10 @@ def h2b(s):
     # Divide into 2-char chunks and convert to hex!
     return bytearray(int(''.join(chunk), 16) for chunk in grouper(2, s))
 
+def b2h(b):
+    """Converts a byte array to a hex string representation."""
+    return ''.join(hex(x)[2:] for x in b)
+
 B64_LOOKUP = ''.join(
     [chr(ord('A') + i) for i in range(26)] +
     [chr(ord('a') + i) for i in range(26)] +
@@ -87,10 +91,11 @@ def b2b64(input_bytedata):
     
     return ''.join(output[:b64_length])
 
-print('Problem 1 solution:')
+print('Problem 1')
 print('Encoding hex string', INPUT_1)
 print('Expected output:', OUTPUT_1)
 print('Actual output:  ', b2b64(h2b(INPUT_1)))
+print()
 
 """
 2. Fixed XOR
@@ -109,6 +114,26 @@ The string:
 ... should produce:
 
  746865206b696420646f6e277420706c6179
+"""
+
+INPUT_2A = '1c0111001f010100061a024b53535009181c'
+INPUT_2B = '686974207468652062756c6c277320657965'
+OUTPUT_2 = '746865206b696420646f6e277420706c6179'
+
+def xorvec(a, b):
+    """XORs two bytes() objects together"""
+    assert(len(a) == len(b))
+    return bytes((x ^ y) for x,y in zip(a,b))
+
+print('Problem 2')
+print('XORing')
+print(INPUT_2A)
+print('with')
+print(INPUT_2B)
+print('Expected output:', OUTPUT_2)
+print('Actual output:  ', b2h(xorvec(h2b(INPUT_2A), h2b(INPUT_2B))))
+
+"""
 
 // ------------------------------------------------------------
 
