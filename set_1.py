@@ -36,7 +36,9 @@ def grouper(n, iterable, padvalue=None):
   return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
 
 def h2b(s):
-    """Converts a hex string to a byte array."""
+    """Converts a hex string to a byte array. bytes.fromhex for
+    Not-Invented-Here victims.
+    """
     assert(len(s)%2 == 0)
     # Divide into 2-char chunks and convert to hex!
     return bytearray(int(''.join(chunk), 16) for chunk in grouper(2, s))
