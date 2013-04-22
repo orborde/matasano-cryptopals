@@ -154,6 +154,25 @@ Evaluate each output and choose the one with the best score.
 
 Tune your algorithm until this works.
 
+"""
+
+def xorchar(char, vec):
+    """XORs a single byte (int 0-255) against an entire byte array."""
+    # Kind of a silly way of doing this, but why write more for loops
+    # when you can use the one you already wrote?
+    return xorvec(bytes([char]*len(vec)), vec)
+
+INPUT_3 = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+
+def crack_xorchar(vec):
+    """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
+    for key in range(256):
+        decrypt = xorchar(key, vec)
+        if decrypt.
+
+crack_xorchar(h2b(INPUT_3))
+
+"""
 // ------------------------------------------------------------
 
 4. Detect single-character XOR
