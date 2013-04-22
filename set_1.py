@@ -39,7 +39,7 @@ def h2b(s):
     """Converts a hex string to a byte array."""
     assert(len(s)%2 == 0)
     # Divide into 2-char chunks and convert to hex!
-    return bytearray(int(chunk, 16) for chunk in ''.join(grouper(2, s)))
+    return bytearray(int(''.join(chunk), 16) for chunk in grouper(2, s))
 
 B64_LOOKUP = ''.join(
     [chr(ord('A') + i) for i in range(26)] +
@@ -48,7 +48,7 @@ B64_LOOKUP = ''.join(
 def b2b64(input_bytedata):
     """bytes object -> b64 string.
     
-    >>> OUTPUT_1 == b2b64(h2b(INPUT_1))
+    >>> b2b64(h2b(INPUT_1))
     True
     """
     # Gah, I remember how much of a pain this was now.
@@ -70,7 +70,7 @@ def b2b64(input_bytedata):
         # times (remember how we zero-padded?)
         for right_shift in [18, 12, 6, 0]:
             b64_byte = (piece >> right_shift) & 0x3F  # 0x3F = 0b00111111
-            output.append(B64_LOOKUP(b64_byte))
+            output.append(B64_LOOKUP[b64_byte])
     
     # So that we don't wind up with extraneous NULs on the end of the
     # decoded b64, calculate how many bytes of b64 are actually needed
@@ -80,11 +80,11 @@ def b2b64(input_bytedata):
     # it's done this way to make sure that the calculation is correct
     # in the face of any possible floating-point roundoff madness.)
     #
-    # b64_length = math.ceil(len(input_bytes)*8/6)
-    b64_length = (len(input_bytes)*8)/6
+    # b64_length = math.ceil(len(input_bytedata)*8/6)
+    b64_length = (len(input_bytedata)*8)//6
     if (b64_length*8) % 6:
         b64_length += 1
-
+    
     return ''.join(output[:b64_length])
 
 
