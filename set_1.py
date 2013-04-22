@@ -187,9 +187,8 @@ def english_metric(vec):
 
 def crack_xorchar(vec):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
-    for key in range(256):
-        decrypt = xorchar(key, vec)
-        if decrypt.
+    decrypts = [(c, xorchar(c, vec)) for c in range(256)]
+    
 
 crack_xorchar(h2b(INPUT_3))
 
