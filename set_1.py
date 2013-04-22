@@ -48,7 +48,7 @@ B64_LOOKUP = ''.join(
 def b2b64(input_bytedata):
     """bytes object -> b64 string.
     
-    >>> b2b64(h2b(INPUT_1))
+    >>> OUTPUT_1 == b2b64(h2b(INPUT_1))
     True
     """
     # Gah, I remember how much of a pain this was now.
@@ -65,7 +65,7 @@ def b2b64(input_bytedata):
     output = []
     for a,b,c in grouper(3, bytedata):
         # Merge into a big ol' int
-        piece = a << 16 + b << 8 + c
+        piece = (a << 16) + (b << 8) + c
         # Mask off the highest 6 bits, look up, and output. Do this 4
         # times (remember how we zero-padded?)
         for right_shift in [18, 12, 6, 0]:
@@ -87,6 +87,10 @@ def b2b64(input_bytedata):
     
     return ''.join(output[:b64_length])
 
+print('Problem 1 solution:')
+print('Encoding hex string', INPUT_1)
+print('Expected output:', OUTPUT_1)
+print('Actual output:  ', b2b64(h2b(INPUT_1)))
 
 """
 2. Fixed XOR
