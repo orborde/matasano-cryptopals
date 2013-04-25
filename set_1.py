@@ -227,7 +227,11 @@ One of the 60-character strings at:
 
 has been encrypted by single-character XOR. Find it. (Your code from
 #3 should help.)
+"""
 
+INPUT_4 = ""
+
+"""
 // ------------------------------------------------------------
 
 5. Repeating-key XOR Cipher
