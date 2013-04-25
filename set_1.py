@@ -134,6 +134,7 @@ print('with')
 print(INPUT_2B)
 print('Expected output:', OUTPUT_2)
 print('Actual output:  ', b2h(xorvec(h2b(INPUT_2A), h2b(INPUT_2B))))
+print()
 
 """
 
@@ -176,21 +177,42 @@ print ('...dictionary loaded.', len(words), 'words')
 def english_metric(vec):
     """Estimates how Englishy the UTF-8 decoding of 'vec' is.
 
-    Score is how many of the characters can be decoded to dictionary
-    words or other printable characters. Prior to attempting to decode
-    words, all characters besides letters and apostrophes are replaced
-    with spaces.
+    Score is how many of the characters [a-zA-Z'] can be decoded to
+    dictionary words, divided by the length of the string. Prior to
+    attempting to decode words, all characters besides letters and
+    apostrophes are replaced with spaces.
     """
-    
-    
-    
+    try:
+      vec = vec.decode()
+    except UnicodeDecodeError:
+      return 0
+    vec2 = []
+    for c in vec:
+        if c.isalpha() or c == "'":
+            vec2.append(c)
+        else:
+            vec2.append(' ')
+    vec = ''.join(vec2)
+    wordvec = vec.split()
+    words_found = [w for w in wordvec if (w in words)]
+    score = sum(len(w) for w in words_found)
+    return score / float(len(vec))
+
 
 def crack_xorchar(vec):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
     decrypts = [(c, xorchar(c, vec)) for c in range(256)]
-    
+    return decrypts
 
-crack_xorchar(h2b(INPUT_3))
+decrypts = crack_xorchar(h2b(INPUT_3))
+decrypts.sort(key=lambda t: english_metric(t[1]))
+decrypts.reverse()
+
+k, t = decrypts[0]
+print('Problem 3')
+print('Best key is:', k)
+print('Best plaintext is:', t.decode())
+
 
 """
 // ------------------------------------------------------------
