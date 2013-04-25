@@ -170,7 +170,9 @@ print('Loading', DICT, 'for an English language model...')
 words = set()
 with open(DICT, 'r') as f:
     for l in f:
-        words.add(l.strip().lower())
+      word = l.strip().lower()
+      if len(word) > 1:
+        words.add(word)
 print ('...dictionary loaded.', len(words), 'words')
 
 
@@ -178,9 +180,9 @@ def english_metric(vec):
     """Estimates how Englishy the UTF-8 decoding of 'vec' is.
 
     Score is how many of the characters [a-zA-Z'] can be decoded to
-    dictionary words, divided by the length of the string. Prior to
-    attempting to decode words, all characters besides letters and
-    apostrophes are replaced with spaces.
+    dictionary words of length > 1, divided by the length of the
+    string. Prior to attempting to decode words, all characters
+    besides letters and apostrophes are replaced with spaces.
     """
     try:
       vec = vec.decode()
