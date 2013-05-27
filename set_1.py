@@ -47,6 +47,7 @@ def b2h(b):
     """Converts a byte array to a hex string representation."""
     return ''.join(hex(x)[2:] for x in b)
 
+# Alphabet from http://tools.ietf.org/html/rfc4648#section-4
 B64_LOOKUP = ''.join(
     [chr(ord('A') + i) for i in range(26)] +
     [chr(ord('a') + i) for i in range(26)] +
@@ -54,11 +55,27 @@ B64_LOOKUP = ''.join(
 # Used for quickish sanity checking in b642b validation. Yes, this
 # could be faster. Premature optimization is great.
 B64_CHARSET = set(B64_LOOKUP)
+
+# Extra test vectors from http://tools.ietf.org/html/rfc4648#section-10
 def b2b64(input_bytedata):
     """bytes object -> b64 string.
     
     >>> OUTPUT_1 == b2b64(h2b(INPUT_1))
     True
+    >>> b2b64(b'')
+    ''
+    >>> b2b64(b'f')
+    'Zg=='
+    >>> b2b64(b'fo')
+    'Zm8='
+    >>> b2b64(b'foo')
+    'Zm9v'
+    >>> b2b64(b'foob')
+    'Zm9vYg=='
+    >>> b2b64(b'fooba')
+    'Zm9vYmE='
+    >>> b2b64(b'foobar')
+    'Zm9vYmFy'
     """
     # Gah, I remember how much of a pain this was now.
 
