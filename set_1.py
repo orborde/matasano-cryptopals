@@ -72,8 +72,7 @@ def b2b64(input_bytedata):
     for a,b,c in grouper(3, bytedata):
         # Merge into a big ol' int
         piece = (a << 16) + (b << 8) + c
-        # Mask off the highest 6 bits, look up, and output. Do this 4
-        # times (remember how we zero-padded?)
+        # Mask out, look up, and output each 6-bit block.
         for right_shift in [18, 12, 6, 0]:
             b64_byte = (piece >> right_shift) & 0x3F  # 0x3F = 0b00111111
             output.append(B64_LOOKUP[b64_byte])
