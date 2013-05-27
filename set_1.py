@@ -51,6 +51,9 @@ B64_LOOKUP = ''.join(
     [chr(ord('A') + i) for i in range(26)] +
     [chr(ord('a') + i) for i in range(26)] +
     [chr(ord('0') + i) for i in range(10)]) + '+/'
+# Used for quickish sanity checking in b642b validation. Yes, this
+# could be faster. Premature optimization is great.
+B64_CHARSET = set(B64_LOOKUP)
 def b2b64(input_bytedata):
     """bytes object -> b64 string.
     
@@ -91,6 +94,47 @@ def b2b64(input_bytedata):
         b64_length += 1
     
     return ''.join(output[:b64_length])
+
+
+def b642b(input_str):
+  """Decode a base64 string to a bytes object.
+
+  >>> b642b(b2b64(b'hello'))
+  b"hello"
+  """
+  
+  # Make sure we have a valid base64 string!
+  assert(all(c in B64_CHARSET for c in input_str))
+
+  # Zero-pad until we have a string representing an integer number of
+  # bytes. This saves some extra checking later.
+  while (len(input_str) % 4):
+    input_str += B64_LOOKUP[0]
+
+  # TODO: compute a reverse lookup table!
+  # Work in groups of 4 chars (3 bytes), letting us work a block at a time.
+  output = bytearray()
+  for group in grouper(4, input_str):
+    ai, bi, ci, di = [B64_LOOKUP.index(x) for x in group]
+    # Merge into a single integer
+    piece = (ai << 18) + (bi << 12) + (ci << 6) + di
+    print(ai,bi,ci,di, piece)
+    # Mask out and output each 8-bit block.
+    for right_shift in [16, 8, 0]:
+      bin_byte = (piece >> right_shift) & 0xFF
+      print(piece >> right_shift, piece >> right_shift & 0xFF, bin_byte, chr(bin_byte))
+      output.append(bin_byte)
+
+  # Based on the input length, calculate how many bytes were in the
+  # input byte vector, and trim down the output.
+  #
+  # (implemented, of course, with integer math to prevent all possible
+  # floating point math mistakes)
+  #
+  # bin_length = math.floor(len(input_bytedata)*6/8)
+  bin_length = (len(input_str)*6)//8
+  return bytes(output[:bin_length])
+  
 
 print('Problem 1')
 print('Encoding hex string', INPUT_1)
