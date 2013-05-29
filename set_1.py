@@ -435,6 +435,22 @@ def hamming_distance(a, b):
     diff = bytes2binary(xorvec(a, b))
     return diff.count("1")
 
+INPUT_6 = open('set1p6.txt').read()
+def run_p6():
+    gibberish = b642b(INPUT_6)
+    # Run the Hamming autocorrelations by length
+    for length in range(1,20):
+        # Chop up into groups. Drop the last one.
+        reduced_length = (len(gibberish) // length) * length
+        groups = list(grouper(length, gibberish[:reduced_length]))
+        pairs = zip(groups[:-1], groups[1:])
+        total_distance = sum(hamming_distance(a,b) for a,b in pairs)
+        # We want the normalized Hamming distance. Which is, uh, bits
+        # changed per byte, evidently.
+        norm_dist = total_distance / reduced_length
+        print(length, norm_dist)
+
+run_p6()
 
 """
 // ------------------------------------------------------------
