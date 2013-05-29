@@ -425,4 +425,5 @@ the same 16 byte ciphertext.
 
 
 if __name__=='__main__':
-    doctest.testmod()
+    #doctest.testmod()
+    pass
