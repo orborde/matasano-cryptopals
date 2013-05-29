@@ -426,6 +426,15 @@ def bytes2binary(bytearr):
     """
     return ''.join(bin(b)[2:].zfill(8) for b in bytearr)
 
+def hamming_distance(a, b):
+    """
+    >>> hamming_distance(b'this is a test', b'wokka wokka!!!')
+    37
+    """
+    assert(len(a) == len(b))
+    diff = bytes2binary(xorvec(a, b))
+    return diff.count("1")
+
 
 """
 // ------------------------------------------------------------
