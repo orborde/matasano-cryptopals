@@ -350,6 +350,8 @@ def xorbytes(key, vec):
 
 def run_p5():
     print('Encoding ASCII string', repr(INPUT_5), 'with key', repr(KEY_5))
+    #print('Decoded expected output:',
+    #      repr(xorbytes(KEY_5.encode(), h2b(OUTPUT_5))))
     print('Expected output:', OUTPUT_5)
     output = b2h(xorbytes(KEY_5.encode(), INPUT_5.encode()))
     print('Actual output:  ', output)
