@@ -292,7 +292,31 @@ has been encrypted by single-character XOR. Find it. (Your code from
 #3 should help.)
 """
 
-INPUT_4 = ""
+INPUT_4 = [l.strip() for l in open('set1p4.txt') if l.strip()]
+
+def run_p4():
+    print()
+    print('Problem 4')
+    possibilities = []
+    for i in range(len(INPUT_4)):
+        ctext = INPUT_4[i]
+        decrypts = crack_xorchar(h2b(ctext))
+        decrypts = [(english_metric(d), i, k, d) for k, d in decrypts]
+        possibilities.extend(decrypts)
+
+    # Sort by english_metric meaningfulness.
+    possibilities.sort()
+    possibilities.reverse()
+
+    # I used this for debugging. Turns out the top answer won. How convenient!
+    #for p in possibilities[:5]:
+    #    print(p)
+
+    _, i, k, d = possibilities[0]
+    print('Best decrypt was on line', i+1, 'with key =', k)
+    print('Plaintext:', d.decode())
+
+run_p4()
 
 """
 // ------------------------------------------------------------
