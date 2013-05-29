@@ -334,7 +334,30 @@ Under the key "ICE", using repeating-key XOR. It should come out to:
 
 Encrypt a bunch of stuff using your repeating-key XOR function. Get a
 feel for it.
+"""
 
+INPUT_5 = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
+KEY_5 = "ICE"
+OUTPUT_5 = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
+
+# Just to make sure I clipped the input string correctly.
+assert(len(INPUT_5) * 2 == len(OUTPUT_5))
+
+def xorbytes(key, vec):
+    key_repeats = len(vec) // len(key) + 1  # approximately :-)
+    key_vec = (key * key_repeats)[:len(vec)]
+    return xorvec(key_vec, vec)
+
+def run_p5():
+    print('Encoding ASCII string', repr(INPUT_5), 'with key', repr(KEY_5))
+    print('Expected output:', OUTPUT_5)
+    output = b2h(xorbytes(KEY_5.encode(), INPUT_5.encode()))
+    print('Actual output:  ', output)
+    assert(output == OUTPUT_5)
+
+run_p5()
+
+"""
 // ------------------------------------------------------------
 
 6. Break repeating-key XOR
