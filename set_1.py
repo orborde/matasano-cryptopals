@@ -456,6 +456,7 @@ def run_p6():
         print(length, score)
 
 # Because cheating is a great way to debug.
+# (Turns out this did not actually find the key)
 def dictionary_attack_p6():
     gibberish = b642b(INPUT_6)
     def enhanced_words():
@@ -521,5 +522,5 @@ if __name__=='__main__':
         #run_p3()
         #run_p4()
         #run_p5()
-        dictionary_attack_p6()
-        #run_p6()
+        #dictionary_attack_p6()  # that totally did not work
+        run_p6()
