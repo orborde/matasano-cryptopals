@@ -439,14 +439,21 @@ INPUT_6 = open('set1p6.txt').read()
 def run_p6():
     gibberish = b642b(INPUT_6)
     # Run the Hamming autocorrelations by length
-    for length in range(1,20):
+    candidates = []
+    for length in range(1,50):
         # Chop up into groups. Drop the last one.
         reduced_length = (len(gibberish) // length) * length
         groups = list(grouper(length, gibberish[:reduced_length]))
         pairs = zip(groups[:-1], groups[1:])
         norm_distances = [hamming_distance(a,b)/length for a,b in pairs]
         avg_dist = sum(norm_distances) / len(norm_distances)
-        print(length, avg_dist)
+        print(length, avg_dist, len(gibberish) / length)
+        candidates.append((avg_dist, length))
+    candidates.sort()
+    candidates.reverse()
+    print('Top five!')
+    for score, length in candidates[:5]:
+        print(length, score)
 
 
 """
