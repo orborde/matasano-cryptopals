@@ -163,12 +163,12 @@ def b642b(input_str):
     bin_length = (len(input_str)*6)//8
     return bytes(output[:bin_length])
   
-
-print('Problem 1')
-print('Encoding hex string', INPUT_1)
-print('Expected output:', OUTPUT_1)
-print('Actual output:  ', b2b64(h2b(INPUT_1)))
-print()
+def run_p1():
+    print('Problem 1')
+    print('Encoding hex string', INPUT_1)
+    print('Expected output:', OUTPUT_1)
+    print('Actual output:  ', b2b64(h2b(INPUT_1)))
+    print()
 
 """
 2. Fixed XOR
@@ -198,14 +198,15 @@ def xorvec(a, b):
     assert(len(a) == len(b))
     return bytes((x ^ y) for x,y in zip(a,b))
 
-print('Problem 2')
-print('XORing')
-print(INPUT_2A)
-print('with')
-print(INPUT_2B)
-print('Expected output:', OUTPUT_2)
-print('Actual output:  ', b2h(xorvec(h2b(INPUT_2A), h2b(INPUT_2B))))
-print()
+def run_p2():
+    print('Problem 2')
+    print('XORing')
+    print(INPUT_2A)
+    print('with')
+    print(INPUT_2B)
+    print('Expected output:', OUTPUT_2)
+    print('Actual output:  ', b2h(xorvec(h2b(INPUT_2A), h2b(INPUT_2B))))
+    print()
 
 """
 
@@ -277,14 +278,15 @@ def crack_xorchar(vec):
     decrypts = [(c, xorchar(c, vec)) for c in range(256)]
     return decrypts
 
-decrypts = crack_xorchar(h2b(INPUT_3))
-decrypts.sort(key=lambda t: english_metric(t[1]))
-decrypts.reverse()
+def run_p3():
+    decrypts = crack_xorchar(h2b(INPUT_3))
+    decrypts.sort(key=lambda t: english_metric(t[1]))
+    decrypts.reverse()
 
-k, t = decrypts[0]
-print('Problem 3')
-print('Best key is:', k)
-print('Best plaintext is:', t.decode())
+    k, t = decrypts[0]
+    print('Problem 3')
+    print('Best key is:', k)
+    print('Best plaintext is:', t.decode())
 
 
 """
@@ -324,7 +326,6 @@ def run_p4():
     print('Best decrypt was on line', i+1, 'with key =', k)
     print('Plaintext:', d.decode())
 
-run_p4()
 
 """
 // ------------------------------------------------------------
@@ -365,7 +366,6 @@ def run_p5():
     print('Actual output:  ', output)
     assert(output == OUTPUT_5)
 
-run_p5()
 
 """
 // ------------------------------------------------------------
@@ -450,7 +450,6 @@ def run_p6():
         norm_dist = total_distance / reduced_length
         print(length, norm_dist)
 
-run_p6()
 
 """
 // ------------------------------------------------------------
@@ -493,5 +492,10 @@ the same 16 byte ciphertext.
 
 
 if __name__=='__main__':
-    doctest.testmod()
-    pass
+    if doctest.testmod()[0] == 0:
+        run_p1()
+        run_p2()
+        run_p3()
+        run_p4()
+        run_p5()
+        run_p6()
