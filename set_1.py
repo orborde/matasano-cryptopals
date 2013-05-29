@@ -45,7 +45,7 @@ def h2b(s):
 
 def b2h(b):
     """Converts a byte array to a hex string representation."""
-    return ''.join(hex(x)[2:] for x in b)
+    return ''.join(hex(x)[2:].zfill(2) for x in b)
 
 # Alphabet from http://tools.ietf.org/html/rfc4648#section-4
 B64_LOOKUP = ''.join(
