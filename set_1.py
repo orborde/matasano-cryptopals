@@ -248,7 +248,7 @@ with open(DICT, 'r') as f:
 print ('...dictionary loaded.', len(words), 'words')
 
 
-def english_metric(vec):
+def english_words_metric(vec):
     """Estimates how Englishy the UTF-8 decoding of 'vec' is.
 
     Score is how many of the characters [a-zA-Z'] can be decoded to
@@ -280,7 +280,7 @@ def crack_xorchar(vec):
 
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
-    decrypts.sort(key=lambda t: english_metric(t[1]))
+    decrypts.sort(key=lambda t: english_words_metric(t[1]))
     decrypts.reverse()
 
     k, t = decrypts[0]
@@ -311,10 +311,10 @@ def run_p4():
     for i in range(len(INPUT_4)):
         ctext = INPUT_4[i]
         decrypts = crack_xorchar(h2b(ctext))
-        decrypts = [(english_metric(d), i, k, d) for k, d in decrypts]
+        decrypts = [(english_words_metric(d), i, k, d) for k, d in decrypts]
         possibilities.extend(decrypts)
 
-    # Sort by english_metric meaningfulness.
+    # Sort by english_words_metric meaningfulness.
     possibilities.sort()
     possibilities.reverse()
 
@@ -470,7 +470,7 @@ def dictionary_attack_p6():
     print(len(my_dict), 'filtered words')
     decrypts = [(word, xorbytes(word.encode(), gibberish))
                 for word in my_dict]
-    decrypts.sort(key=lambda t: english_metric(t[1]))
+    decrypts.sort(key=lambda t: english_words_metric(t[1]))
     decrypts.reverse()
     for word, decrypt in decrypts[:5]:
         print(word, decrypt[:60])
