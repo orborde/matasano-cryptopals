@@ -444,11 +444,9 @@ def run_p6():
         reduced_length = (len(gibberish) // length) * length
         groups = list(grouper(length, gibberish[:reduced_length]))
         pairs = zip(groups[:-1], groups[1:])
-        total_distance = sum(hamming_distance(a,b) for a,b in pairs)
-        # We want the normalized Hamming distance. Which is, uh, bits
-        # changed per byte, evidently.
-        norm_dist = total_distance / reduced_length
-        print(length, norm_dist)
+        norm_distances = [hamming_distance(a,b)/length for a,b in pairs]
+        avg_dist = sum(norm_distances) / len(norm_distances)
+        print(length, avg_dist)
 
 
 """
@@ -493,9 +491,9 @@ the same 16 byte ciphertext.
 
 if __name__=='__main__':
     if doctest.testmod()[0] == 0:
-        run_p1()
-        run_p2()
-        run_p3()
-        run_p4()
-        run_p5()
+        #run_p1()
+        #run_p2()
+        #run_p3()
+        #run_p4()
+        #run_p5()
         run_p6()
