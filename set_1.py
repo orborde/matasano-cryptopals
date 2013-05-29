@@ -417,7 +417,17 @@ have code to do this.
 e. For each block, the single-byte XOR key that produces the best
 looking histogram is the repeating-key XOR key byte for that
 block. Put them together and you have the key.
+"""
 
+def bytes2binary(bytearr):
+    """
+    >>> bytes2binary(bytes([120, 10, 2]))
+    '011110000000101000000010'
+    """
+    return ''.join(bin(b)[2:].zfill(8) for b in bytearr)
+
+
+"""
 // ------------------------------------------------------------
 
 7. AES in ECB Mode
