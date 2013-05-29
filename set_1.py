@@ -303,12 +303,22 @@ ENGLISH_LETTER_FREQUENCIES=[
     ['Z', '0.074']
     ]
 ENGLISH_LETTER_FREQUENCIES = dict(
-    letter, float(val)/100 for letter,val in ENGLISH_LETTER_FREQUENCIES)
+    (letter.encode(), float(val)/100)
+    for letter,val in ENGLISH_LETTER_FREQUENCIES)
 
 def english_letters_metric(vec):
     """Compute how likely this particular frequency distribution of
-    letters is using a multinomial distribution over English letters.
+    letters is by using a multinomial distribution over English
+    letters.
     """
+    # TODO: abstract to histogram function
+    histo = collections.defaultdict(int)
+    for b in vec:
+        if b in ENGLISH_LETTER_FREQUENCIES:
+            histo[b] += 1
+    total = sum(histo.values())
+    histo = dict((k, v/total) for k, v in histo.iteritems())
+    
     
 
 def crack_xorchar(vec):
