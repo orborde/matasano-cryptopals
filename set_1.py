@@ -318,7 +318,7 @@ def english_letters_metric(vec):
             histo[b] += 1
     total = sum(histo.values())
     histo = dict((k, v/total) for k, v in histo.iteritems())
-    
+    assert(0)  # incomplete!
     
 
 def crack_xorchar(vec):
