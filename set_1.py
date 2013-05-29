@@ -440,7 +440,7 @@ def run_p6():
     gibberish = b642b(INPUT_6)
     # Run the Hamming autocorrelations by length
     candidates = []
-    for length in range(1,50):
+    for length in range(1,len(gibberish)//2):
         # Chop up into groups. Drop the last one.
         reduced_length = (len(gibberish) // length) * length
         groups = list(grouper(length, gibberish[:reduced_length]))
