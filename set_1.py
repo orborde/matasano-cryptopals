@@ -455,6 +455,24 @@ def run_p6():
     for score, length in candidates[:5]:
         print(length, score)
 
+# Because cheating is a great way to debug.
+def dictionary_attack_p6():
+    gibberish = b642b(INPUT_6)
+    def enhanced_words():
+        for word in words:
+            if len(word) != 6:
+                continue
+            yield word
+            yield word.upper()
+            yield word.lower()
+    my_dict = list(enhanced_words())
+    print(len(my_dict), 'filtered words')
+    decrypts = [(word, xorbytes(word.encode(), gibberish))
+                for word in my_dict]
+    decrypts.sort(key=lambda t: english_metric(t[1]))
+    decrypts.reverse()
+    for word, decrypt in decrypts[:5]:
+        print(word, decrypt[:60])
 
 """
 // ------------------------------------------------------------
@@ -503,4 +521,5 @@ if __name__=='__main__':
         #run_p3()
         #run_p4()
         #run_p5()
-        run_p6()
+        dictionary_attack_p6()
+        #run_p6()
