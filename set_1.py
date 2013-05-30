@@ -342,14 +342,16 @@ def crack_xorchar(vec):
 
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
-    decrypts.sort(key=lambda t: english_words_metric(t[1]))
+    decrypts.sort(key=lambda t: english_letters_metric(t[1]))
     decrypts.reverse()
 
     k, t = decrypts[0]
     print('Problem 3')
     print('Best key is:', k)
-    print('Best plaintext is:', t.decode())
-
+    print('Best plaintext is:', t)
+    print('Others:')
+    for k, t in decrypts[:5]:
+        print(k, english_letters_metric(t), t)
 
 """
 // ------------------------------------------------------------
@@ -373,10 +375,10 @@ def run_p4():
     for i in range(len(INPUT_4)):
         ctext = INPUT_4[i]
         decrypts = crack_xorchar(h2b(ctext))
-        decrypts = [(english_words_metric(d), i, k, d) for k, d in decrypts]
+        decrypts = [(english_letters_metric(d), i, k, d) for k, d in decrypts]
         possibilities.extend(decrypts)
 
-    # Sort by english_words_metric meaningfulness.
+    # Sort by english_letters_metric meaningfulness.
     possibilities.sort()
     possibilities.reverse()
 
