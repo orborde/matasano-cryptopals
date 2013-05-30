@@ -348,16 +348,6 @@ def crack_xorchar(vec):
     return decrypts
 
 
-def printable_letters_metric(vec):
-    """Computes english_letters_metric and then heavily penalizes
-    non-printable byte vectors.
-    """
-    score = english_letters_metric(vec)
-    if not is_printable(vec):
-        score -= 10000
-    return score
-
-
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
     decrypts.sort(key=lambda t: english_letters_metric(t[1]))
