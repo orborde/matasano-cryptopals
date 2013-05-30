@@ -350,7 +350,7 @@ def run_p3():
     print('Best key is:', k)
     print('Best plaintext is:', t)
     print('Others:')
-    for k, t in decrypts[:5]:
+    for k, t in decrypts[:10]:
         print(k, english_letters_metric(t), t)
 
 """
@@ -386,8 +386,8 @@ def run_p4():
     #for p in possibilities[:5]:
     #    print(p)
 
-    _, i, k, d = possibilities[0]
-    print('Best decrypt was on line', i+1, 'with key =', k)
+    s, i, k, d = possibilities[0]
+    print('Best decrypt was on line', i+1, 'with key =', k,'and score', s)
     print('Plaintext:', d.decode())
 
 
