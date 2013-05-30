@@ -307,6 +307,20 @@ ENGLISH_LETTER_FREQUENCIES = dict(
     for letter,val in ENGLISH_LETTER_FREQUENCIES)
 
 def english_letters_metric(vec):
+    """Score a candidate plaintext by the sum of the frequencies of
+    its letters, divided by the total letters.
+    """
+    vec = vec.upper()
+    valid_letters = bytearray(
+        c for c in vec if (bytes([c]) in ENGLISH_LETTER_FREQUENCIES))
+    if len(valid_letters) == 0:
+        return 0
+    score = (
+        sum(ENGLISH_LETTER_FREQUENCIES[bytes([c])] for c in valid_letters))
+    return score
+
+
+def english_multinomial_metric(vec):
     """Compute how likely this particular frequency distribution of
     letters is by using a multinomial distribution over English
     letters.
