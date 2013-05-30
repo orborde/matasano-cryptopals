@@ -333,12 +333,30 @@ def english_multinomial_metric(vec):
     total = sum(histo.values())
     histo = dict((k, v/total) for k, v in histo.iteritems())
     assert(0)  # incomplete!
-    
+
+
+import string
+PRINTABLE_BYTES = set(string.printable.encode())
+def is_printable(vec):
+    """Does this byte vector represent an ASCII printable string?"""
+    return all(c in PRINTABLE_BYTES for c in vec)
+
 
 def crack_xorchar(vec):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
     decrypts = [(c, xorchar(c, vec)) for c in range(256)]
     return decrypts
+
+
+def printable_letters_metric(vec):
+    """Computes english_letters_metric and then heavily penalizes
+    non-printable byte vectors.
+    """
+    score = english_letters_metric(vec)
+    if not is_printable(vec):
+        score -= 10000
+    return score
+
 
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
