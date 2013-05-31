@@ -398,7 +398,7 @@ def run_p4():
 
     s, i, k, d = possibilities[0]
     print('Best decrypt was on line', i+1, 'with key =', k,'and score', s)
-    print('Plaintext:', d.decode())
+    print('Plaintext:', d)
 
 
 """
