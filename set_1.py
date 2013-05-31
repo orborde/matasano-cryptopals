@@ -510,24 +510,54 @@ def hamming_distance(a, b):
     return diff.count("1")
 
 INPUT_6 = open('set1p6.txt').read()
+
+def repeating_key_group(key_length, seq):
+    """
+    >>> repeating_key_group(2, range(11))
+    [(0, 2, 4, 6, 8), (1, 3, 5, 7, 9)]
+    >>> repeating_key_group(2, b'abcdefg')
+    [(97, 99, 101), (98, 100, 102)]
+    """
+    iters = [iter(seq)]*key_length
+    return list(zip(*zip(*iters)))
+
+
+import functools
+def prod(iterable):
+    return functools.reduce(lambda x,y: x*y, iterable, 1)
+
+
+def crack_xorkey(key_length, ciphertext):
+    def search(block):
+        decrypts = crack_xorchar(block)
+        for k, d in decrypts:
+            if is_printable(d):
+                yield k
+
+    blocks = [bytearray(g) for g in repeating_key_group(key_length, ciphertext)]
+    solnsets = [list(search(b)) for b in blocks]
+    print(prod(len(seq) for seq in solnsets), "possibilities")
+    return itertools.product(solnsets)
+
 def run_p6():
     gibberish = b642b(INPUT_6)
     # Run the Hamming autocorrelations by length
     candidates = []
-    for length in range(1,len(gibberish)//2):
+    for length in range(1,50):
         # Chop up into groups. Drop the last one.
         reduced_length = (len(gibberish) // length) * length
         groups = list(grouper(length, gibberish[:reduced_length]))
         pairs = zip(groups[:-1], groups[1:])
         norm_distances = [hamming_distance(a,b)/length for a,b in pairs]
         avg_dist = sum(norm_distances) / len(norm_distances)
-        print(length, avg_dist, len(gibberish) / length)
+        #print(length, avg_dist, len(gibberish) / length)
         candidates.append((avg_dist, length))
     candidates.sort()
-    candidates.reverse()
     print('Top five!')
     for score, length in candidates[:5]:
         print(length, score)
+        for k in itertools.islice(crack_xorkey(length, gibberish), 5):
+            print(k, xorbytes(k, gibberish)[:50])
 
 # Because cheating is a great way to debug.
 # (Turns out this did not actually find the key)
