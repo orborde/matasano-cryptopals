@@ -526,7 +526,7 @@ def prod(iterable):
     return functools.reduce(lambda x,y: x*y, iterable, 1)
 
 
-def crack_xorkey_iters(key_length, ciphertext):
+def crack_xorbytes_iters(key_length, ciphertext):
     def search(block):
         decrypts = crack_xorchar(block)
         for k, d in decrypts:
