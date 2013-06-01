@@ -527,17 +527,20 @@ def prod(iterable):
     return functools.reduce(lambda x,y: x*y, iterable, 1)
 
 
-def crack_xorkey(key_length, ciphertext):
+def crack_xorkey_iters(key_length, ciphertext):
     def search(block):
         decrypts = crack_xorchar(block)
         for k, d in decrypts:
-            if is_printable(d):
+            if is_printable(bytes([k])) and is_printable(d):
                 yield k
 
     blocks = [bytearray(g) for g in repeating_key_group(key_length, ciphertext)]
     solnsets = [list(search(b)) for b in blocks]
-    print(prod(len(seq) for seq in solnsets), "possibilities")
-    return itertools.product(solnsets)
+    return solnsets
+
+def count_possible(key_length, ciphertext):
+    #return prod(len(seq) for seq in crack_xorkey_iters(key_length, ciphertext))
+    return [len(seq) for seq in crack_xorkey_iters(key_length, ciphertext)]
 
 def run_p6():
     gibberish = b642b(INPUT_6)
@@ -554,10 +557,15 @@ def run_p6():
         candidates.append((avg_dist, length))
     candidates.sort()
     print('Top five!')
-    for score, length in candidates[:5]:
-        print(length, score)
-        for k in itertools.islice(crack_xorkey(length, gibberish), 5):
-            print(k, xorbytes(k, gibberish)[:50])
+    for dist, length in candidates[:5]:
+        print(length, dist)
+    print(len(gibberish), 'bytes of ciphertext')
+    for length in range(1, 100):
+        ct = count_possible(length, gibberish)
+        if prod(ct) > 0:
+            print(length, ':', ct)
+        #for k in itertools.islice(crack_xorkey(length, gibberish), 5):
+        #    print(k, xorbytes(k, gibberish)[:50])
 
 # Because cheating is a great way to debug.
 # (Turns out this did not actually find the key)
