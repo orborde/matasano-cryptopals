@@ -526,20 +526,19 @@ def prod(iterable):
     return functools.reduce(lambda x,y: x*y, iterable, 1)
 
 
-def crack_xorbytes_iters(key_length, ciphertext):
+def xorbytes_printable_keyspace(key_length, ciphertext):
     def search(block):
         decrypts = crack_xorchar(block)
         for k, d in decrypts:
             if is_printable(bytes([k])) and is_printable(d):
-                yield k
+                yield english_letters_metric(d), k
 
     blocks = [bytearray(g) for g in repeating_key_group(key_length, ciphertext)]
     solnsets = [list(search(b)) for b in blocks]
     return solnsets
 
-def count_possible(key_length, ciphertext):
-    #return prod(len(seq) for seq in crack_xorkey_iters(key_length, ciphertext))
-    return [len(seq) for seq in crack_xorkey_iters(key_length, ciphertext)]
+def countkeys(keyspace):
+    return prod([len(seq) for seq in keyspace])
 
 def run_p6():
     gibberish = b642b(INPUT_6)
@@ -555,16 +554,22 @@ def run_p6():
         #print(length, avg_dist, len(gibberish) / length)
         candidates.append((avg_dist, length))
     candidates.sort()
-    print('Top five!')
+    print('Lowest-Hamming 5:')
     for dist, length in candidates[:5]:
         print(length, dist)
-    print(len(gibberish), 'bytes of ciphertext')
-    for length in range(1, 100):
-        ct = count_possible(length, gibberish)
-        if prod(ct) > 0:
-            print(length, ':', ct)
-        #for k in itertools.islice(crack_xorkey(length, gibberish), 5):
-        #    print(k, xorbytes(k, gibberish)[:50])
+    _, length = candidates[0]
+    print('Choosing', length, 'key length.')
+    keyspace = xorbytes_printable_keyspace(length, gibberish)
+    assert(countkeys(keyspace) > 0)
+    print('Length', length)
+    print(countkeys(keyspace), 'possible keys.')
+    [l.sort(reverse=True) for l in keyspace]
+    bestkey = bytes(max(l)[1] for l in keyspace)
+    print('Highest scoring key:', bestkey)
+    print('First three lines of plaintext:')
+    for line in xorbytes(bestkey, gibberish).decode().splitlines()[:3]:
+        print('>', line)
+        
 
 # Because cheating is a great way to debug.
 # (Turns out this did not actually find the key)
