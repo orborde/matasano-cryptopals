@@ -612,6 +612,23 @@ Easiest way:
 
 Use OpenSSL::Cipher and give it AES-128-ECB as the cipher.
 
+"""
+
+from Crypto.Cipher import AES
+
+def run_p7():
+    print('Problem 7')
+    INPUT_7 = open('set1p7.txt').read()
+    binary = b642b(INPUT_7)
+    aes = AES.new(b'YELLOW SUBMARINE', AES.MODE_ECB)
+    message = aes.decrypt(binary).decode()
+    print('First couple lines of output:')
+    for l in message.splitlines()[:5]:
+        print(l)
+
+    
+
+"""
 // ------------------------------------------------------------
 
 8. Detecting ECB
