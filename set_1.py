@@ -56,9 +56,6 @@ B64_LOOKUP = ''.join(
 # could be faster. Premature optimization is great.
 B64_CHARSET = set(B64_LOOKUP)
 
-# TODO: fuck it :-)
-import base64
-
 # Extra test vectors from http://tools.ietf.org/html/rfc4648#section-10
 def b2b64(input_bytedata):
     """bytes object -> b64 string.
@@ -80,8 +77,6 @@ def b2b64(input_bytedata):
     >>> b2b64(b'foobar')
     'Zm9vYmFy'
     """
-    # TODO: make this work right
-    return base64.b64encode(input_bytedata).decode()
 
     # Gah, I remember how much of a pain this was now.
 
@@ -128,9 +123,6 @@ def b642b(input_str):
     >>> b642b(b2b64(b'hello'))
     b'hello'
     """
-    # TODO: make work for real
-    return base64.b64decode(input_str.encode())
-    
     # Make sure we have a valid base64 string!
     assert(all(c in B64_CHARSET for c in input_str))
     
