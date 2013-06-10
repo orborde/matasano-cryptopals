@@ -32,8 +32,8 @@ import itertools
 # still necessary...
 # http://stackoverflow.com/questions/5850536/how-to-chunk-a-list-in-python-3
 def grouper(n, iterable, padvalue=None):
-  "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
-  return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
+    "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
+    return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
 
 def h2b(s):
     """Converts a hex string to a byte array. bytes.fromhex for
@@ -320,7 +320,8 @@ def english_letters_metric(vec):
     return score
 
 
-# TODO: cleanup if unused.
+# Python's string.printable with some of the obviously unprintable
+# stuff deleted (I think this is as weird a comment as you do.)
 PRINTABLE_BYTES = set(b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n')
 def is_printable(vec):
     """Does this byte vector represent an ASCII printable string?"""
