@@ -646,7 +646,29 @@ the same 16 byte ciphertext.
 // ------------------------------------------------------------
 """
 
-
+def run_p8():
+    print('Problem 8')
+    INPUT_8 = open('set1p8.txt').read()
+    input_lines = INPUT_8.splitlines()
+    # Don't bother hex-decoding this. Just use 32-byte blocks from the
+    # original (corresponding to 16-byte blocks in the decoded
+    # binary).
+    blocksize = 32
+    # For each line, find the set of unique blocks that appear in it.
+    input_lines_reduced = []
+    for line in input_lines:
+        input_lines_reduced.append(set(grouper(blocksize, line)))
+    # Since we need to remember the original position of the found
+    # line in the file, sort the array indices by the size of the
+    # unique-set.
+    indices = sorted(range(len(input_lines_reduced)),
+                     key=lambda i: len(input_lines_reduced[i]))
+    # Print out the top 5 candidates (line numbers are the array index
+    # plus one).
+    for index in indices:
+        print(index+1,":", len(input_lines_reduced[index]), 'unique blocks.')
+    solution = indices[0] + 1
+    print('Line', solution, 'is probably ECB-encrypted.')
 
 if __name__=='__main__':
     if doctest.testmod()[0] == 0:
