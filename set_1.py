@@ -398,6 +398,7 @@ def run_p4():
     s, i, k, d = possibilities[0]
     print('Best decrypt was on line', i+1, 'with key =', k,'and score', s)
     print('Plaintext:', d)
+    print()
 
 
 """
@@ -431,6 +432,7 @@ def xorbytes(key, vec):
     return xorvec(key_vec, vec)
 
 def run_p5():
+    print('Problem 5')
     print('Encoding ASCII string', repr(INPUT_5), 'with key', repr(KEY_5))
     #print('Decoded expected output:',
     #      repr(xorbytes(KEY_5.encode(), h2b(OUTPUT_5))))
@@ -438,6 +440,7 @@ def run_p5():
     output = b2h(xorbytes(KEY_5.encode(), INPUT_5.encode()))
     print('Actual output:  ', output)
     assert(output == OUTPUT_5)
+    print()
 
 
 """
@@ -541,6 +544,7 @@ def countkeys(keyspace):
     return prod([len(seq) for seq in keyspace])
 
 def run_p6():
+    print('Problem 6')
     gibberish = b642b(INPUT_6)
     # Run the Hamming autocorrelations by length
     candidates = []
@@ -558,7 +562,7 @@ def run_p6():
     for dist, length in candidates[:5]:
         print(length, dist)
     _, length = candidates[0]
-    print('Choosing', length, 'key length.')
+    print('Choosing key length', 29)
     keyspace = xorbytes_printable_keyspace(length, gibberish)
     assert(countkeys(keyspace) > 0)
     print('Length', length)
@@ -569,6 +573,7 @@ def run_p6():
     print('First three lines of plaintext:')
     for line in xorbytes(bestkey, gibberish).decode().splitlines()[:3]:
         print('>', line)
+    print()
         
 
 # Because cheating is a great way to debug.
@@ -622,9 +627,10 @@ def run_p7():
     binary = b642b(INPUT_7)
     aes = AES.new(b'YELLOW SUBMARINE', AES.MODE_ECB)
     message = aes.decrypt(binary).decode()
-    print('First couple lines of output:')
+    print('First three lines of plaintext:')
     for l in message.splitlines()[:5]:
-        print(l)
+        print('>', l)
+    print()
 
     
 
@@ -669,13 +675,16 @@ def run_p8():
     #    print(index+1,":", len(input_lines_reduced[index]), 'unique blocks.')
     solution = indices[0] + 1
     print('Line', solution, 'is probably ECB-encrypted.')
+    print()
 
 if __name__=='__main__':
     if doctest.testmod()[0] == 0:
-        #run_p1()
-        #run_p2()
-        #run_p3()
-        #run_p4()
-        #run_p5()
+        run_p1()
+        run_p2()
+        run_p3()
+        run_p4()
+        run_p5()
         #dictionary_attack_p6()  # that totally did not work
         run_p6()
+        run_p7()
+        run_p8()
