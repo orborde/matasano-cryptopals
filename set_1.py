@@ -664,9 +664,9 @@ def run_p8():
     indices = sorted(range(len(input_lines_reduced)),
                      key=lambda i: len(input_lines_reduced[i]))
     # Print out the top 5 candidates (line numbers are the array index
-    # plus one).
-    for index in indices:
-        print(index+1,":", len(input_lines_reduced[index]), 'unique blocks.')
+    # plus one). Commented out because the solution is cleaner.
+    #for index in indices:
+    #    print(index+1,":", len(input_lines_reduced[index]), 'unique blocks.')
     solution = indices[0] + 1
     print('Line', solution, 'is probably ECB-encrypted.')
 
