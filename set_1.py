@@ -322,7 +322,9 @@ def english_letters_metric(vec):
 
 # Python's string.printable with some of the obviously unprintable
 # stuff deleted (I think this is as weird a comment as you do.)
-PRINTABLE_BYTES = set(b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n')
+PRINTABLE_BYTES = set(
+    b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!'
+    b'"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n')
 def is_printable(vec):
     """Does this byte vector represent an ASCII printable string?"""
     return all(c in PRINTABLE_BYTES for c in vec)
