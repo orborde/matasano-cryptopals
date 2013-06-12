@@ -108,13 +108,13 @@ def b2b64(input_bytedata):
     #
     # b64_length = math.ceil(len(input_bytedata)*8/6)
     b64_length = (len(input_bytedata)*8)//6
-    if (b64_length*8) % 6:
-        print('Going the extra mile')
+    if (len(input_bytedata)*8) % 6:
         b64_length += 1
-    print(len(input_bytedata), 'bytes encode to', b64_length, 'chars')
-    print((b64_length*8) % 6)
-    
-    return ''.join(output[:b64_length])
+    b64 = ''.join(output[:b64_length])
+    # Apply RFC-mandated padding
+    while len(b64) % 4:
+        b64 += '='
+    return b64
 
 
 def b642b(input_str):
