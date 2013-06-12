@@ -129,6 +129,9 @@ def b642b(input_str):
     input_str = input_str.rstrip('=')
     # Make sure we have a valid base64 string!
     assert(all(c in B64_CHARSET for c in input_str))
+
+    # Save the original string length for proper result truncation later.
+    input_str_len = len(input_str)
     
     # Zero-pad until we have a string representing an integer number of
     # bytes. This saves some extra checking later.
@@ -142,11 +145,9 @@ def b642b(input_str):
         ai, bi, ci, di = [B64_LOOKUP.index(x) for x in group]
         # Merge into a single integer
         piece = (ai << 18) + (bi << 12) + (ci << 6) + di
-        print('NEXT BLOCK:', ai,bi,ci,di, piece)
         # Mask out and output each 8-bit block.
         for right_shift in [16, 8, 0]:
             bin_byte = (piece >> right_shift) & 0xFF
-            print(piece >> right_shift, piece >> right_shift & 0xFF, bin_byte, chr(bin_byte))
             output.append(bin_byte)
 
     # Based on the input length, calculate how many bytes were in the
@@ -155,8 +156,8 @@ def b642b(input_str):
     # (implemented, of course, with integer math to prevent all possible
     # floating point math mistakes)
     #
-    # bin_length = math.floor(len(input_str)*6/8)
-    bin_length = (len(input_str)*6)//8
+    # bin_length = math.floor(input_str_len)*6/8)
+    bin_length = (input_str_len*6)//8
     return bytes(output[:bin_length])
   
 def run_p1():
