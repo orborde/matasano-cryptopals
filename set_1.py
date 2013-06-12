@@ -144,6 +144,7 @@ def b642b(input_str):
         # Mask out and output each 8-bit block.
         for right_shift in [16, 8, 0]:
             bin_byte = (piece >> right_shift) & 0xFF
+            print(piece >> right_shift, piece >> right_shift & 0xFF, bin_byte, chr(bin_byte))
             output.append(bin_byte)
 
     # Based on the input length, calculate how many bytes were in the
