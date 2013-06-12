@@ -364,21 +364,6 @@ has been encrypted by single-character XOR. Find it. (Your code from
 INPUT_4 = [l.strip() for l in open('set1p4.txt') if l.strip()]
 
 
-def english_multinomial_metric(vec):
-    """Compute how likely this particular frequency distribution of
-    letters is by using a multinomial distribution over English
-    letters.
-    """
-    # TODO: abstract to histogram function
-    histo = collections.defaultdict(int)
-    for b in vec:
-        if b in ENGLISH_LETTER_FREQUENCIES:
-            histo[b] += 1
-    total = sum(histo.values())
-    histo = dict((k, v/total) for k, v in histo.iteritems())
-    assert(0)  # incomplete!
-
-
 def run_p4():
     print()
     print('Problem 4')
