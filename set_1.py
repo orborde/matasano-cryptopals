@@ -123,6 +123,8 @@ def b642b(input_str):
     >>> b642b(b2b64(b'hello'))
     b'hello'
     """
+    # Strip off padding from the end.
+    input_str = input_str.rstrip('=')
     # Make sure we have a valid base64 string!
     assert(all(c in B64_CHARSET for c in input_str))
     
