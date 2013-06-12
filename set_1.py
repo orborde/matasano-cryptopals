@@ -152,7 +152,7 @@ def b642b(input_str):
     # (implemented, of course, with integer math to prevent all possible
     # floating point math mistakes)
     #
-    # bin_length = math.floor(len(input_bytedata)*6/8)
+    # bin_length = math.floor(len(input_str)*6/8)
     bin_length = (len(input_str)*6)//8
     return bytes(output[:bin_length])
   
