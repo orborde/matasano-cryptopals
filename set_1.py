@@ -76,6 +76,8 @@ def b2b64(input_bytedata):
     'Zm9vYmE='
     >>> b2b64(b'foobar')
     'Zm9vYmFy'
+    >>> b2b64(b'hello')
+    'aGVsbG8='
     """
 
     # Gah, I remember how much of a pain this was now.
