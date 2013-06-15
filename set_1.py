@@ -241,9 +241,9 @@ print('Loading', DICT, 'for an English language model...')
 words = set()
 with open(DICT, 'r') as f:
     for l in f:
-      word = l.strip().lower()
-      if len(word) > 1:
-        words.add(word)
+        word = l.strip().lower()
+        if len(word) > 1:
+            words.add(word)
 print ('...dictionary loaded.', len(words), 'words')
 
 
