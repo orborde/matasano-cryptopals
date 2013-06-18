@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import set_1
+from set_1 import b2b64, b642b, grouper, xorvec
 
 """
 // ------------------------------------------------------------
@@ -39,6 +39,7 @@ def run_p9():
     output = pkcs7(INPUT_9, 20)
     assert(output == OUTPUT_9)
     print('Actual output:  ', output)
+    print()
 
 
 """
@@ -69,6 +70,54 @@ The buffer at:
 is intelligible (somewhat) when CBC decrypted against "YELLOW
 SUBMARINE" with an IV of all ASCII 0 (\x00\x00\x00 &c)
 
+"""
+
+from Crypto.Cipher import AES
+
+# We're all about the AES128 here!
+KEYSIZE=16
+BLOCKSIZE=16
+
+def AES128_encrypt(plaintext, key):
+    assert(len(key) == KEYSIZE)
+    aes = AES.new(key, AES.MODE_ECB)
+    ciphertext = aes.encrypt(plaintext)
+    return ciphertext
+
+def AES128_decrypt(ciphertext, key):
+    assert(len(key) == KEYSIZE)
+    aes = AES.new(key, AES.MODE_ECB)
+    plaintext = aes.decrypt(ciphertext)
+    return plaintext
+
+def AES128_CBC_encrypt(plaintext, key):
+    pass
+
+def AES128_CBC_decrypt(ciphertext, key):
+    blocks = list(grouper(BLOCKSIZE, ciphertext))
+    # Initialization vector
+    last_cipherblock = blocks[0]
+    plaintext = bytearray()
+    for block in blocks[1:]:
+        block = bytes(block)
+        decrypt = AES128_decrypt(block, key)
+        decrypt = xorvec(last_cipherblock, decrypt)
+        plaintext.extend(decrypt)
+        last_cipherblock = block
+    return plaintext
+
+def run_p10():
+    print('Problem 10')
+    INPUT = b642b(open('set2p10.txt').read())
+    KEY = b'YELLOW SUBMARINE'
+    IV = bytes(16)
+    output = AES128_CBC_decrypt(IV + INPUT, KEY)
+    print('First 3 lines of output:')
+    for line in output.splitlines()[:3]:
+        print(line.decode())
+    print()
+
+"""
 // ------------------------------------------------------------
 
 11. Write an oracle function and use it to detect ECB.
@@ -289,3 +338,4 @@ mode have this property?
 
 if __name__ == '__main__':
     run_p9()
+    run_p10()
