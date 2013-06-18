@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import random
+
 from set_1 import b2b64, b642b, grouper, xorvec
 
 """
@@ -78,6 +80,9 @@ from Crypto.Cipher import AES
 KEYSIZE=16
 BLOCKSIZE=16
 
+def random_bytes(length):
+    return bytes([random.randint(0, 255) for x in range(length)])
+
 def AES128_encrypt(plaintext, key):
     assert(len(key) == KEYSIZE)
     aes = AES.new(key, AES.MODE_ECB)
@@ -91,7 +96,16 @@ def AES128_decrypt(ciphertext, key):
     return plaintext
 
 def AES128_CBC_encrypt(plaintext, key):
-    pass
+    iv = random_bytes(BLOCKSIZE)
+    last_cipherblock = iv
+    ciphertext = bytearray()
+    for block in grouper(BLOCKSIZE, plaintext):
+        block = bytes(block)
+        encrypt = AES128_encrypt(
+            xorvec(last_cipherblock, block), key)
+        ciphertext.extend(encrypt)
+        last_cipherblock = encrypt
+    return ciphertext
 
 def AES128_CBC_decrypt(ciphertext, key):
     blocks = list(grouper(BLOCKSIZE, ciphertext))
@@ -144,6 +158,48 @@ rand(2) to decide which to use.
 
 Now detect the block cipher mode the function is using each time.
 
+"""
+
+def p11_oracle(data):
+    # Generate a random key
+    key = random_bytes(KEYSIZE)
+    # Munge the data
+    data = (random_bytes(random.randint(5, 10)) +
+            data +
+            random_bytes(random.randint(5, 10)))
+    encryption = random.choice([AES128_encrypt, AES128_CBC_encrypt])
+    return encryption(data, key), encryption
+
+def is_ecb(ciphertext):
+    # It is overwhelmingly likely that CBC will scramble things enough
+    # that there will be no identical blocks. Meanwhile, ECB will have
+    # many duplicate blocks because I'm passing in all zeros (see
+    # below).
+    blocks = list(grouper(BLOCKSIZE, ciphertext))
+    return (len(set(blocks)) != len(blocks))
+
+def run_p11():
+    print('Problem 11')
+    # Just throw in a very long zero vector
+    data = bytes(BLOCKSIZE * 100)
+    runs = 0
+    correct = 0
+    for i in range(1000):
+        runs += 1
+        ciphertext, encryption = p11_oracle(data)
+        if is_ecb(ciphertext):
+            guess = AES128_encrypt
+        else:
+            guess = AES128_CBC_encrypt
+        if encryption is guess:
+            correct += 1
+
+    print('Out of', runs, 'tries, the classifier got', correct, 'correct.')
+    if runs == correct:
+        print('NOT BAD!')
+    print()
+
+"""
 // ------------------------------------------------------------
 
 12. Byte-at-a-time ECB decryption, Full control version
@@ -339,3 +395,4 @@ mode have this property?
 if __name__ == '__main__':
     run_p9()
     run_p10()
+    run_p11()
