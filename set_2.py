@@ -252,7 +252,53 @@ in your dictionary. You've now discovered the first byte of
 unknown-string.
 
 f. Repeat for the next byte.
+"""
 
+SECRET_SUFFIX_12 = b642b("""
+  Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg
+  aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
+  dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
+  YnkK
+""")
+
+KEY_12 = random_bytes(KEYSIZE)
+
+def p12_oracle(data):
+    return AES128_encrypt(pkcs7(data + SECRET_SUFFIX_12, BLOCKSIZE),
+                          KEY_12)
+
+def find_block_size(oracle):
+    def oracle_len(length):
+        return len(oracle(bytes(length)))
+    start_size = len(oracle(bytes(1)))
+    # Run the oracle with successively inputs until the output
+    # suddenly gets longer.
+    cur_bytes = 1
+    while oracle_len(cur_bytes) == start_size:
+        cur_bytes += 1
+    # OK, the output just jumped in length at cur_size bytes. Now add
+    # bytes until it jumps again.
+    jump_bytes = cur_bytes
+    jump_size = oracle_len(cur_bytes)
+    while oracle_len(cur_bytes) == jump_size:
+        cur_bytes += 1
+    # The output jumped in length again. We now know the block size.
+    return (cur_bytes - jump_bytes)
+
+def run_p12():
+    print('Problem 12')
+    oracle = p12_oracle
+    blocksize = find_block_size(oracle)
+    print('Block size is', blocksize, 'bytes.')
+    ecb_check_data = list(grouper(blocksize, oracle(bytes(1000))))
+    if len(set(ecb_check_data)) == len(ecb_check_data):
+        print('...not ECB, apparently. Huh?')
+        return
+    else:
+        print('ECB detected.')
+
+
+"""
 // ------------------------------------------------------------
 
 13. ECB cut-and-paste
