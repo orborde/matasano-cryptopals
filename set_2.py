@@ -168,7 +168,7 @@ def p11_oracle(data):
             data +
             random_bytes(random.randint(5, 10)))
     encryption = random.choice([AES128_encrypt, AES128_CBC_encrypt])
-    return encryption(data, key), encryption
+    return encryption(pkcs7(data, BLOCKSIZE), key), encryption
 
 def is_ecb(ciphertext):
     # It is overwhelmingly likely that CBC will scramble things enough
