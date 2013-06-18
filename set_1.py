@@ -237,14 +237,14 @@ def xorchar(char, vec):
 INPUT_3 = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
 DICT='/usr/share/dict/words'
-print('Loading', DICT, 'for an English language model...')
+#print('Loading', DICT, 'for an English language model...')
 words = set()
 with open(DICT, 'r') as f:
     for l in f:
         word = l.strip().lower()
         if len(word) > 1:
             words.add(word)
-print ('...dictionary loaded.', len(words), 'words')
+#print ('...dictionary loaded.', len(words), 'words')
 
 
 def english_words_metric(vec):
