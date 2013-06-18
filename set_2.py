@@ -15,6 +15,31 @@ padded to 20 bytes would be:
   "YELLOW SUBMARINE\x04\x04\x04\x04"
 
 The particulars of this algorithm are easy to find online.
+"""
+
+INPUT_9 = b'YELLOW SUBMARINE'
+OUTPUT_9 =  b'YELLOW SUBMARINE\x04\x04\x04\x04'
+
+def pkcs7(data, blocksize):
+    # math.ceil(data/blocksize) * blocksize, in integer math.
+    blocks = len(data) // blocksize
+    remainder = len(data) % blocksize
+    if (remainder):
+        padlen = blocksize - remainder
+        padchar = bytes([padlen])
+        data = data + (padchar * padlen)
+    return data
+        
+
+def run_p9():
+    print('Problem 9')
+    print('Expected output:', OUTPUT_9)
+    output = pkcs7(INPUT_9, 20)
+    assert(output == OUTPUT_9)
+    print('Actual output:  ', output)
+
+
+"""
 
 // ------------------------------------------------------------
 
@@ -259,3 +284,6 @@ mode have this property?
 
 // ------------------------------------------------------------
 """
+
+if __name__ == '__main__':
+    run_p9()
