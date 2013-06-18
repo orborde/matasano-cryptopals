@@ -110,7 +110,7 @@ def run_p10():
     print('Problem 10')
     INPUT = b642b(open('set2p10.txt').read())
     KEY = b'YELLOW SUBMARINE'
-    IV = bytes(16)
+    IV = bytes(BLOCKSIZE)
     output = AES128_CBC_decrypt(IV + INPUT, KEY)
     print('First 3 lines of output:')
     for line in output.splitlines()[:3]:
