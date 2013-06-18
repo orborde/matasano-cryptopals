@@ -295,7 +295,7 @@ def run_p12():
         print('...not ECB, apparently. Huh?')
         return
     else:
-        print('ECB detected.')
+        print('ECB detected, as expected.')
 
 
 """
