@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+import doctest
 import random
+import sys
 
 from set_1 import b2b64, b642b, grouper, xorvec
 
@@ -24,21 +26,36 @@ The particulars of this algorithm are easy to find online.
 INPUT_9 = b'YELLOW SUBMARINE'
 OUTPUT_9 =  b'YELLOW SUBMARINE\x04\x04\x04\x04'
 
-def pkcs7(data, blocksize):
-    # math.ceil(data/blocksize) * blocksize, in integer math.
+def pkcs7pad(data, blocksize):
+    """
+    >>> pkcs7pad(b'YELLOW SUBMARINE', 20) == b'YELLOW SUBMARINE\x04\x04\x04\x04'
+    True
+    >>> pkcs7pad(b'YELLOW SUBMARINE', 16) == b'YELLOW SUBMARINE\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10'
+    True
+    """
     blocks = len(data) // blocksize
     remainder = len(data) % blocksize
-    if (remainder):
-        padlen = blocksize - remainder
-        padchar = bytes([padlen])
-        data = data + (padchar * padlen)
+    padlen = blocksize - remainder
+    padchar = bytes([padlen])
+    data = data + (padchar * padlen)
     return data
         
+
+def pkcs7unpad(data):
+    """
+    >>> pkcs7unpad(b'YELLOW SUBMARINE\x04\x04\x04\x04')
+    b'YELLOW SUBMARINE'
+    >>> pkcs7unpad(b'YELLOW SUBMARINE\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10')
+    b'YELLOW SUBMARINE'
+    """
+    padlen = data[-1]
+    return data[:-padlen]
+
 
 def run_p9():
     print('Problem 9')
     print('Expected output:', OUTPUT_9)
-    output = pkcs7(INPUT_9, 20)
+    output = pkcs7pad(INPUT_9, 20)
     assert(output == OUTPUT_9)
     print('Actual output:  ', output)
     print()
@@ -168,7 +185,7 @@ def p11_oracle(data):
             data +
             random_bytes(random.randint(5, 10)))
     encryption = random.choice([AES128_encrypt, AES128_CBC_encrypt])
-    return encryption(pkcs7(data, BLOCKSIZE), key), encryption
+    return encryption(pkcs7pad(data, BLOCKSIZE), key), encryption
 
 def is_ecb(ciphertext):
     # It is overwhelmingly likely that CBC will scramble things enough
@@ -264,7 +281,7 @@ SECRET_SUFFIX_12 = b642b("""
 KEY_12 = random_bytes(KEYSIZE)
 
 def p12_oracle(data):
-    return AES128_encrypt(pkcs7(data + SECRET_SUFFIX_12, BLOCKSIZE),
+    return AES128_encrypt(pkcs7pad(data + SECRET_SUFFIX_12, BLOCKSIZE),
                           KEY_12)
 
 def find_block_size(oracle):
@@ -439,6 +456,8 @@ mode have this property?
 """
 
 if __name__ == '__main__':
+    if (doctest.testmod()[0]) > 0:
+        sys.exit(1)
     #run_p9()
     #run_p10()
     #run_p11()
