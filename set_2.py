@@ -439,6 +439,7 @@ mode have this property?
 """
 
 if __name__ == '__main__':
-    run_p9()
-    run_p10()
-    run_p11()
+    #run_p9()
+    #run_p10()
+    #run_p11()
+    run_p12()
