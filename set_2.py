@@ -368,8 +368,10 @@ def run_p12():
 
     secret_suffix = known_prefix
     test_data = b'We got it!'
-    if secret_suffix_oracle(secret_suffix, test_data) == oracle(test_data):
+    if secret_suffix == SECRET_SUFFIX_12:
         print('We got it!')
+        assert(secret_suffix_oracle(secret_suffix, testdata) ==
+               oracle(testdata))
     else:
         print("WE'RE WRONNNNNNGGG!")
 
