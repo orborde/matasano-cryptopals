@@ -281,9 +281,12 @@ SECRET_SUFFIX_12 = b642b("""
 
 KEY_12 = random_bytes(KEYSIZE)
 
-def p12_oracle(data):
-    return AES128_encrypt(pkcs7pad(data + SECRET_SUFFIX_12, BLOCKSIZE),
+def secret_suffix_oracle(secret_suffix, data):
+    return AES128_encrypt(pkcs7pad(data + secret_suffix, BLOCKSIZE),
                           KEY_12)
+
+def p12_oracle(data):
+    return secret_suffix_oracle(SECRET_SUFFIX_12, data)
 
 def find_block_size(oracle):
     def oracle_len(length):
@@ -318,15 +321,26 @@ def find_next_byte(oracle, blocksize, known_prefix):
     # Generate the oracle output such that its hidden prefix is
     # aligned with the start of our known_prefix. We'll be looking at
     # the first num_known_blocks blocks below.
-    oracle_output = oracle(chosen_part)[:(num_known_blocks*blocksize)]
+    oracle_output = oracle(chosen_part)
+    oracle_output_start = oracle_output[:(num_known_blocks*blocksize)]
+
+    # If the stimulus length is the same as
+    # len(oracle(chosen_part)), we passed in chosen_part +
+    # hidden_prefix, so this is the last byte.
+    if len(oracle_output) == len(chosen_part) + len(known_prefix) + 1:
+        last_byte = True
+    else:
+        last_byte = False
+
 
     # Test each possible next-byte of the known prefix in turn. The
     # first num_known_blocks of one of them should match the first
     # num_known_blocks of oracle_output.
     for next_byte in range(256):
         stimulus = chosen_part + known_prefix + bytes([next_byte])
-        if oracle(stimulus).startswith(oracle_output):
-            return next_byte
+        response = oracle(stimulus)
+        if response.startswith(oracle_output_start):
+            return next_byte, last_byte
 
     # Hmm. That didn't work. PANIC.
     assert(False)
@@ -345,11 +359,19 @@ def run_p12():
         print('ECB detected, as expected.')
 
     known_prefix = bytearray()
-    for i in range(blocksize):
-        print(i, known_prefix)
-        next_byte = find_next_byte(oracle, blocksize, known_prefix)
+    last_byte = False
+    while not last_byte:
+        print(known_prefix)
+        next_byte, last_byte = find_next_byte(oracle, blocksize, known_prefix)
         known_prefix.append(next_byte)
     print(known_prefix)
+
+    secret_suffix = known_prefix
+    test_data = b'We got it!'
+    if secret_suffix_oracle(secret_suffix, test_data) == oracle(test_data):
+        print('We got it!')
+    else:
+        print("WE'RE WRONNNNNNGGG!")
 
 """
 // ------------------------------------------------------------
