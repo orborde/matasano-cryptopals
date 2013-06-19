@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import doctest
+import math
 import random
 import sys
 
@@ -302,6 +303,35 @@ def find_block_size(oracle):
     # The output jumped in length again. We now know the block size.
     return (cur_bytes - jump_bytes)
 
+def find_next_byte(oracle, blocksize, known_prefix):
+    # Generate a vector of NULs that, when prepended to the known
+    # prefix, bring it to one byte short of a full block.
+    chosen_part_len = (-(len(known_prefix) + 1) % blocksize)
+    chosen_part = bytes(chosen_part_len)
+
+    # Work out how many blocks of the oracle's output we should know
+    # (accounting for the us-controlled varying byte at the end).
+    num_known_blocks = math.ceil(
+        (len(chosen_part) + len(known_prefix) + 1) /
+        blocksize)
+
+    # Generate the oracle output such that its hidden prefix is
+    # aligned with the start of our known_prefix. We'll be looking at
+    # the first num_known_blocks blocks below.
+    oracle_output = oracle(chosen_part)[:(num_known_blocks*blocksize)]
+
+    # Test each possible next-byte of the known prefix in turn. The
+    # first num_known_blocks of one of them should match the first
+    # num_known_blocks of oracle_output.
+    for next_byte in range(256):
+        stimulus = chosen_part + known_prefix + bytes([next_byte])
+        if oracle(stimulus).startswith(oracle_output):
+            return next_byte
+
+    # Hmm. That didn't work. PANIC.
+    assert(False)
+
+
 def run_p12():
     print('Problem 12')
     oracle = p12_oracle
@@ -314,6 +344,12 @@ def run_p12():
     else:
         print('ECB detected, as expected.')
 
+    known_prefix = bytearray()
+    for i in range(blocksize):
+        print(i, known_prefix)
+        next_byte = find_next_byte(oracle, blocksize, known_prefix)
+        known_prefix.append(next_byte)
+    print(known_prefix)
 
 """
 // ------------------------------------------------------------
