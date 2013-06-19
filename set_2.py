@@ -306,6 +306,17 @@ def find_block_size(oracle):
     # The output jumped in length again. We now know the block size.
     return (cur_bytes - jump_bytes)
 
+def find_secret_suffix_length(oracle):
+    # Work out how many data bytes you need to pass in before the
+    # oracle output grows by a block. That's how many bytes short of
+    # an even block the oracle suffix is.
+    bytes_short = 0
+    oracle_null_output_length = len(oracle(b''))
+    while (len(oracle(bytes(bytes_short + 1))) ==
+           oracle_null_output_length):
+        bytes_short += 1
+    return oracle_null_output_length - bytes_short
+
 def find_next_byte(oracle, blocksize, known_prefix):
     # Generate a vector of NULs that, when prepended to the known
     # prefix, bring it to one byte short of a full block.
@@ -324,23 +335,13 @@ def find_next_byte(oracle, blocksize, known_prefix):
     oracle_output = oracle(chosen_part)
     oracle_output_start = oracle_output[:(num_known_blocks*blocksize)]
 
-    # If the stimulus length is the same as
-    # len(oracle(chosen_part)), we passed in chosen_part +
-    # hidden_prefix, so this is the last byte.
-    if len(oracle_output) == len(chosen_part) + len(known_prefix) + 1:
-        last_byte = True
-    else:
-        last_byte = False
-
-
     # Test each possible next-byte of the known prefix in turn. The
     # first num_known_blocks of one of them should match the first
     # num_known_blocks of oracle_output.
     for next_byte in range(256):
         stimulus = chosen_part + known_prefix + bytes([next_byte])
-        response = oracle(stimulus)
-        if response.startswith(oracle_output_start):
-            return next_byte, last_byte
+        if oracle(stimulus).startswith(oracle_output_start):
+            return next_byte
 
     # Hmm. That didn't work. PANIC.
     assert(False)
@@ -358,20 +359,21 @@ def run_p12():
     else:
         print('ECB detected, as expected.')
 
-    known_prefix = bytearray()
-    last_byte = False
-    while not last_byte:
-        print(known_prefix)
-        next_byte, last_byte = find_next_byte(oracle, blocksize, known_prefix)
-        known_prefix.append(next_byte)
-    print(known_prefix)
+    secret_suffix_length = find_secret_suffix_length(oracle)
+    print('The secret suffix is', secret_suffix_length, 'bytes long.')
 
+    known_prefix = bytearray()
+    for i in range(secret_suffix_length - 1):
+        print(known_prefix)
+        next_byte = find_next_byte(oracle, blocksize, known_prefix)
+        known_prefix.append(next_byte)
     secret_suffix = known_prefix
-    test_data = b'We got it!'
+    print(len(secret_suffix), secret_suffix)
+    test_data = b'Hi there!'
     if secret_suffix == SECRET_SUFFIX_12:
         print('We got it!')
-        assert(secret_suffix_oracle(secret_suffix, testdata) ==
-               oracle(testdata))
+        assert(secret_suffix_oracle(secret_suffix, test_data) ==
+               oracle(test_data))
     else:
         print("WE'RE WRONNNNNNGGG!")
 
