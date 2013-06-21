@@ -312,7 +312,9 @@ def find_secret_suffix_length(oracle):
     # an even block the oracle suffix is.
     bytes_short = 0
     oracle_null_output_length = len(oracle(b''))
-    while (len(oracle(bytes(bytes_short + 1))) ==
+    # Due to the PKCS7 padding, we expect the number of blocks to jump
+    # as soon as we reach an even block length.
+    while (len(oracle(bytes(bytes_short))) ==
            oracle_null_output_length):
         bytes_short += 1
     return oracle_null_output_length - bytes_short
@@ -363,19 +365,26 @@ def run_p12():
     print('The secret suffix is', secret_suffix_length, 'bytes long.')
 
     known_prefix = bytearray()
-    for i in range(secret_suffix_length - 1):
-        print(known_prefix)
+    for i in range(secret_suffix_length):
+        #print(known_prefix)
         next_byte = find_next_byte(oracle, blocksize, known_prefix)
         known_prefix.append(next_byte)
     secret_suffix = known_prefix
-    print(len(secret_suffix), secret_suffix)
-    test_data = b'Hi there!'
-    if secret_suffix == SECRET_SUFFIX_12:
-        print('We got it!')
-        assert(secret_suffix_oracle(secret_suffix, test_data) ==
-               oracle(test_data))
-    else:
+    #print(len(secret_suffix), secret_suffix)
+
+    if not secret_suffix == SECRET_SUFFIX_12:
         print("WE'RE WRONNNNNNGGG!")
+        return
+
+    print('We got it!')
+    test_data = b'Hi there!'
+    assert(secret_suffix_oracle(secret_suffix, test_data) ==
+           oracle(test_data))
+
+    print('The secret suffix was:')
+    print(secret_suffix.decode())
+    print()
+
 
 """
 // ------------------------------------------------------------
