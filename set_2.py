@@ -438,6 +438,39 @@ Using only the user input to profile_for() (as an oracle to generate
 "valid" ciphertexts) and the ciphertexts themselves, make a role=admin
 profile.
 
+"""
+
+def profile_decode(s):
+    """
+    >>> profile_parse('foo=bar&baz=qux&zap=zazzle')
+    {'foo': 'bar', 'baz': 'qux', 'zap': 'zazzle'}
+    """
+    d = {}  # Dictionaries are like objects, right?
+    for kv in s.split('&'):
+        k, v = kv.split('=', 1)
+        d[k] = v
+    return d
+
+def profile_encode(d):
+    entries = []
+    for k, v in d.iteritems():
+        entries.append(k + '=' + v)
+    out = '&'.join(entries)
+
+def profile_for(email):
+    # Strip out the metacharacters.
+    for c in '&=':
+        email = email.replace(c, '')
+    d = {'email': email,
+         'uid' : 10,
+         'role' : 'user'}
+    return profile_encode(d)
+
+def run_p13():
+    pass
+
+"""
+
 // ------------------------------------------------------------
 
 14. Byte-at-a-time ECB decryption, Partial control version
@@ -532,4 +565,5 @@ if __name__ == '__main__':
     #run_p9()
     #run_p10()
     #run_p11()
-    run_p12()
+    #run_p12()
+    run_p13()
