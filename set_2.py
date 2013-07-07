@@ -442,7 +442,7 @@ profile.
 
 def profile_decode(s):
     """
-    >>> profile_parse('foo=bar&baz=qux&zap=zazzle')
+    >>> profile_decode('foo=bar&baz=qux&zap=zazzle')
     {'foo': 'bar', 'baz': 'qux', 'zap': 'zazzle'}
     """
     d = {}  # Dictionaries are like objects, right?
