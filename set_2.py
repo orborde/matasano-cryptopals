@@ -473,6 +473,23 @@ def profile_for(email):
          'uid' : 10}
     return profile_encode(d)
 
+def gen_admin_profile(oracle):
+    # General strategy:
+    # 1. Deduce the block size.
+    # 2. Deduce the insertion index of the email string in the plaintext.
+    # 3. Create a plaintext using (e.g.) XXXXXXXXXadmin to get the
+    #    ciphertext for the following ('|' is the block boundary):
+    #    email=XXXXXXXXXX|admin&role=user&uid=10
+    # 4. Create a plaintext using XXXXXX email inputs to get the
+    #    ciphertext for the following:
+    #    email=XXXX&role=|user&uid=10
+    # 5. Paste the first block (4) and the second block of (3)
+    #    together to produce a profile ciphertext. It will represent
+    #    the following plaintext:
+    #    email=XXXX&role=|admin&role=user&uid=10
+
+
+
 def run_p13():
     pass
 
