@@ -453,17 +453,24 @@ def profile_decode(s):
 
 def profile_encode(d):
     entries = []
-    for k, v in d.iteritems():
-        entries.append(k + '=' + v)
+    for k, v in d.items():
+        entries.append(k + '=' + str(v))
+    # Sort by key.
+    entries.sort()
     out = '&'.join(entries)
+    return out
 
 def profile_for(email):
+    """
+    >>> profile_for('bob@g.c')
+    'email=bob@g.c&role=user&uid=10'
+    """
     # Strip out the metacharacters.
     for c in '&=':
         email = email.replace(c, '')
     d = {'email': email,
-         'uid' : 10,
-         'role' : 'user'}
+         'role' : 'user',
+         'uid' : 10}
     return profile_encode(d)
 
 def run_p13():
