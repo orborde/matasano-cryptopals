@@ -476,18 +476,27 @@ def profile_for(email):
 def gen_admin_profile(oracle):
     # General strategy:
     # 1. Deduce the block size.
+    #
     # 2. Deduce the insertion index of the email string in the plaintext.
-    # 3. Create a plaintext using (e.g.) XXXXXXXXXadmin to get the
-    #    ciphertext for the following ('|' is the block boundary):
-    #    email=XXXXXXXXXXXXXX|admin&uid=10&role=user
+    #
+    # 3. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... to get
+    #    the ciphertext for the following ('|' is the block boundary):
+    #    email=XXXXXXXXXXXXXX| \
+    #    admin\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b| \
+    #    &uid=10&role=user
+    #    The idea here is to get that middle "admin" block, which, if
+    #    it were to appear as the last block in a PKCS7 padded
+    #    plaintext, would decode to the simple "admin"
+    #
     # 4. Create a plaintext using XXXXXX email inputs to get the
     #    ciphertext for the following:
     #    email=X&uid=10&role=|user
+    #
     # 5. Paste the first block (4) and the second block of (3)
     #    together to produce a profile ciphertext. It will represent
     #    the following plaintext:
     #    email=X&uid=10&role=|admin&uid=10&role=user
-
+    pass
 
 
 def run_p13():
