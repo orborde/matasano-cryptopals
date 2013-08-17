@@ -512,7 +512,6 @@ def gen_admin_profile(oracle):
 
 
 def run_p13():
-    AES128_encrypt('hello', 'x' * 16)
     pass
 
 """
