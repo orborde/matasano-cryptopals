@@ -673,6 +673,13 @@ def p16_cookie(userdata):
 def p16_cookie_decode(cookie):
     return pkcs7unpad(AES128_CBC_decrypt(cookie, P16_KEY))
 
+def p16_cookie_is_admin(cookie):
+    return b'admin=true' in p16_cookie_decode(cookie)
+
+def run_p16():
+    print('Problem 16')
+    
+
 
 if __name__ == '__main__':
     if (doctest.testmod()[0]) > 0:
@@ -682,3 +689,4 @@ if __name__ == '__main__':
     #run_p11()
     #run_p12()
     #run_p13()
+    run_p16()
