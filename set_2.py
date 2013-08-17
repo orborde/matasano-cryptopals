@@ -481,9 +481,11 @@ def gen_admin_profile(oracle):
     #
     # 3. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... to get
     #    the ciphertext for the following ('|' is the block boundary):
+    #
     #    email=XXXXXXXXXXXXXX| \
     #    admin\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b| \
     #    &uid=10&role=user
+    #
     #    The idea here is to get that middle "admin" block, which, if
     #    it were to appear as the last block in a PKCS7 padded
     #    plaintext, would decode to the simple "admin"
@@ -495,7 +497,12 @@ def gen_admin_profile(oracle):
     # 5. Paste the first block (4) and the second block of (3)
     #    together to produce a profile ciphertext. It will represent
     #    the following plaintext:
-    #    email=X&uid=10&role=|admin&uid=10&role=user
+    #
+    #    email=X&uid=10&role=| \
+    #    admin\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b
+    #
+    #    which PKCS7-unpads to
+    #    email=X&uid=10&role=|admin
     pass
 
 
