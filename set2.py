@@ -522,7 +522,16 @@ def gen_admin_cookie():
 
 
 def run_p13():
-    print(profile_cookie_decode(gen_admin_cookie()))
+    print('Problem 13')
+    cookie = gen_admin_cookie()
+    print('Created a cookie')
+    decode = profile_cookie_decode(cookie)
+    print('It decodes to this object:', decode)
+    if decode['role'] == 'admin':
+        print('We made an admin cookie!')
+    else:
+        print('Sadly, we failed at making an admin cookie :-(')
+    print()
 
 """
 
