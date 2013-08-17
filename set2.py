@@ -654,6 +654,8 @@ mode have this property?
 """
 
 P16_KEY = os.urandom(KEYSIZE)
+P16_PREFIX = b'comment1=cooking%20MCs;userdata='
+P16_SUFFIX = b';comment2=%20like%20a%20pound%20of%20bacon'  
 def p16_cookie(userdata):
     """
     >>> print(p16_cookie_decode(p16_cookie(b'hello')).decode())
@@ -665,9 +667,7 @@ def p16_cookie(userdata):
     userdata = userdata.replace(b';', b'\\;')
     userdata = userdata.replace(b'=', b'\\=')
     # And go!
-    data = (b'comment1=cooking%20MCs;userdata=' +
-            userdata +
-            b';comment2=%20like%20a%20pound%20of%20bacon')
+    data = (P16_PREFIX + userdata + P16_SUFFIX)
     return AES128_CBC_encrypt(pkcs7pad(data, BLOCKSIZE), P16_KEY)
 
 def p16_cookie_decode(cookie):
