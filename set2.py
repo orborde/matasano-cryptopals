@@ -444,8 +444,8 @@ profile.
 
 def profile_decode(s):
     """
-    >>> profile_decode('foo=bar&baz=qux&zap=zazzle')
-    {'foo': 'bar', 'baz': 'qux', 'zap': 'zazzle'}
+    >>> profile_decode('uid=bar&email=qux&role=zazzle')
+    {'role': 'zazzle', 'uid': 'bar', 'email': 'qux'}
     """
     d = {}  # Dictionaries are like objects, right?
     for kv in s.split('&'):
@@ -454,34 +454,33 @@ def profile_decode(s):
     return d
 
 def profile_encode(d):
-    entries = []
-    for k, v in d.items():
-        entries.append(k + '=' + str(v))
-    # Sort by key.
-    entries.sort()
-    out = '&'.join(entries)
+    # Helpfully put the keys in the order that makes it easy to apply
+    # cut-and-paste.
+    keys = ['email', 'uid', 'role']
+    out = '&'.join((k + '=' + d[k]) for k in keys)
     return out
 
 def profile_for(email):
     """
     >>> profile_for('bob@g.c')
-    'email=bob@g.c&role=user&uid=10'
+    'email=bob@g.c&uid=10&role=user'
     """
     # Strip out the metacharacters.
     for c in '&=':
         email = email.replace(c, '')
     d = {'email': email,
          'role' : 'user',
-         'uid' : 10}
+         'uid' : '10'}
     return profile_encode(d)
 
 P13_KEY = os.urandom(KEYSIZE)
 def profile_cookie(email):
     return AES128_encrypt(pkcs7pad(profile_for(email).encode(), BLOCKSIZE), P13_KEY)
 
-def gen_admin_profile(oracle):
-    # General strategy:
-    #
+def profile_cookie_decode(cookie):
+    return profile_decode(pkcs7unpad(AES128_decrypt(cookie, P13_KEY)).decode())
+
+def gen_admin_cookie():
     # 1. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... as the
     #    email to get the ciphertext for the following ('|' is the
     #    block boundary):
@@ -493,11 +492,22 @@ def gen_admin_profile(oracle):
     #    The idea here is to get that middle "admin" block, which, if
     #    it were to appear as the last block in a PKCS7 padded
     #    plaintext, would decode to the simple "admin"
-    #
+    admin_plaintext = pkcs7pad(b'admin', BLOCKSIZE)
+    right_email = ((BLOCKSIZE - len('email=')) * b'X') + admin_plaintext
+    right_ciphertext = profile_cookie(right_email.decode())
+    right_block = right_ciphertext[BLOCKSIZE:(2*BLOCKSIZE)]
+
     # 2. Create a plaintext using XXXXXX email inputs to get the
     #    ciphertext for the following:
-    #    email=X&uid=10&role=|user
     #
+    #    email=XXXXX&uid=10&role=|user
+    #
+    #    Note that the left chunk will need to be two blocks, because
+    #    the prefilled data is longer than a block (19 characters).
+    left_email = (2*BLOCKSIZE - len('email=') - len('&uid=10&role=')) * 'X'
+    left_ciphertext = profile_cookie(left_email)
+    left_block = left_ciphertext[:(2*BLOCKSIZE)]
+
     # 3. Paste the first block (2) and the second block of (1)
     #    together to produce a profile ciphertext. It will represent
     #    the following plaintext:
@@ -507,11 +517,12 @@ def gen_admin_profile(oracle):
     #
     #    which PKCS7-unpads to
     #    email=X&uid=10&role=|admin
-    pass
+    admin_cookie = left_block + right_block
+    return admin_cookie
 
 
 def run_p13():
-    pass
+    print(profile_cookie_decode(gen_admin_cookie()))
 
 """
 
