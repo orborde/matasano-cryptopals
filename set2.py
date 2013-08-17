@@ -605,6 +605,13 @@ If you are writing in a language with exceptions, like Python or Ruby,
 make your function throw an exception on bad padding.
 
 // ------------------------------------------------------------
+"""
+
+############################################################
+# See pkcs7unpad and its doctests at the top of this file. #
+############################################################
+
+"""
 
 16. CBC bit flipping
 
