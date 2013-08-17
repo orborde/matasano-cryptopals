@@ -129,7 +129,7 @@ def AES128_decrypt(ciphertext, key):
 def AES128_CBC_encrypt(plaintext, key):
     iv = os.urandom(BLOCKSIZE)
     last_cipherblock = iv
-    ciphertext = bytearray()
+    ciphertext = bytearray(iv)
     for block in grouper(BLOCKSIZE, plaintext):
         block = bytes(block)
         encrypt = AES128_encrypt(
