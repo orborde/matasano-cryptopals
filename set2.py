@@ -555,7 +555,19 @@ all the tools you already have; no crazy math is required.
 Think about the words "STIMULUS" and "RESPONSE".
 
 // ------------------------------------------------------------
+"""
 
+P14_TARGET_BYTES = SECRET_SUFFIX_12
+
+P14_KEY = os.urandom(KEYSIZE)
+P14_PREFIX = os.urandom(random.randint(1,50))
+def p14_oracle(data):
+    return AES128_ECB(pkcs7pad(P14_PREFIX + data + P14_TARGET_BYTES),
+                      P14_KEY)
+
+
+
+"""
 15. PKCS#7 padding validation
 
 Write a function that takes a plaintext, determines if it has valid
