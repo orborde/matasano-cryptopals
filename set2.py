@@ -114,9 +114,6 @@ from Crypto.Cipher import AES
 KEYSIZE=16
 BLOCKSIZE=16
 
-def random_bytes(length):
-    return bytes([random.randint(0, 255) for x in range(length)])
-
 def AES128_encrypt(plaintext, key):
     assert(len(key) == KEYSIZE)
     aes = AES.new(key, AES.MODE_ECB)
@@ -130,7 +127,7 @@ def AES128_decrypt(ciphertext, key):
     return plaintext
 
 def AES128_CBC_encrypt(plaintext, key):
-    iv = random_bytes(BLOCKSIZE)
+    iv = os.urandom(BLOCKSIZE)
     last_cipherblock = iv
     ciphertext = bytearray()
     for block in grouper(BLOCKSIZE, plaintext):
@@ -196,11 +193,11 @@ Now detect the block cipher mode the function is using each time.
 
 def p11_oracle(data):
     # Generate a random key
-    key = random_bytes(KEYSIZE)
+    key = os.urandom(KEYSIZE)
     # Munge the data
-    data = (random_bytes(random.randint(5, 10)) +
+    data = (os.urandom(random.randint(5, 10)) +
             data +
-            random_bytes(random.randint(5, 10)))
+            os.urandom(random.randint(5, 10)))
     encryption = random.choice([AES128_encrypt, AES128_CBC_encrypt])
     return encryption(pkcs7pad(data, BLOCKSIZE), key), encryption
 
@@ -295,7 +292,7 @@ SECRET_SUFFIX_12 = b642b("""
   YnkK
 """)
 
-KEY_12 = random_bytes(KEYSIZE)
+KEY_12 = os.urandom(KEYSIZE)
 
 def secret_suffix_oracle(secret_suffix, data):
     return AES128_encrypt(pkcs7pad(data + secret_suffix, BLOCKSIZE),
