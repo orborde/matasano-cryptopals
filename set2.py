@@ -50,8 +50,22 @@ def pkcs7unpad(data):
     b'YELLOW SUBMARINE'
     >>> pkcs7unpad(b'YELLOW SUBMARINE\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10\x10')
     b'YELLOW SUBMARINE'
+    >>> pkcs7unpad(b'ICE ICE BABY\x04\x04\x04\x04')
+    b'ICE ICE BABY'
+    >>> pkcs7unpad(b'ICE ICE BABY\x05\x05\x05\x05')
+    Traceback (most recent call last):
+      ...
+    Exception: Bad padding!
+    >>> pkcs7unpad(b'ICE ICE BABY\x01\x02\x03\x04')
+    Traceback (most recent call last):
+      ...
+    Exception: Bad padding!
+
     """
     padlen = data[-1]
+    for c in data[-padlen:]:
+        if c != padlen:
+            raise Exception('Bad padding!')
     return data[:-padlen]
 
 
