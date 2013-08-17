@@ -565,7 +565,7 @@ def p14_oracle(data):
     return AES128_ECB(pkcs7pad(P14_PREFIX + data + P14_TARGET_BYTES),
                       P14_KEY)
 
-
+# TODO
 
 """
 15. PKCS#7 padding validation
