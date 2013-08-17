@@ -479,44 +479,12 @@ P13_KEY = os.urandom(KEYSIZE)
 def profile_cookie(email):
     return AES128_encrypt(pkcs7pad(profile_for(email).encode(), BLOCKSIZE), P13_KEY)
 
-def hamming_bytes(a, b):
-    """
-    >>> hamming_bytes("wokka", "holla")
-    3
-    """
-    assert(len(a) == len(b))
-    ct = 0
-    for x,y in zip(a, b):
-        if x != y:
-            ct += 1
-    return ct
-
-def find_block_size(oracle):
-    """
-    >>> find_block_size(profile_cookie)
-    16
-    """
-    # Feed a single-byte input. Count how many bytes are different. Do
-    # this many times and pick the most common number of bytes-changed
-    # as the likely blocksize. Most of the time, all the blocks will
-    # change, but in lieu of computing the probability exactly, I'll
-    # just hit it with the sledgehammer of 100 repetitions. That
-    # should do it.
-    origin = oracle(chr(127))
-    runs = [hamming_bytes(origin, oracle(chr(x))) for x in range(100)]
-    histo = collections.Counter(runs)
-    winner, ct = histo.most_common(1)[0]
-    return winner
-    
-
 def gen_admin_profile(oracle):
     # General strategy:
-    # 1. Deduce the block size.
     #
-    # 2. Deduce the insertion index of the email string in the plaintext.
-    #
-    # 3. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... to get
-    #    the ciphertext for the following ('|' is the block boundary):
+    # 1. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... as the
+    #    email to get the ciphertext for the following ('|' is the
+    #    block boundary):
     #
     #    email=XXXXXXXXXXXXXX| \
     #    admin\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b| \
@@ -526,11 +494,11 @@ def gen_admin_profile(oracle):
     #    it were to appear as the last block in a PKCS7 padded
     #    plaintext, would decode to the simple "admin"
     #
-    # 4. Create a plaintext using XXXXXX email inputs to get the
+    # 2. Create a plaintext using XXXXXX email inputs to get the
     #    ciphertext for the following:
     #    email=X&uid=10&role=|user
     #
-    # 5. Paste the first block (4) and the second block of (3)
+    # 3. Paste the first block (2) and the second block of (1)
     #    together to produce a profile ciphertext. It will represent
     #    the following plaintext:
     #
