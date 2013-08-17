@@ -2,6 +2,7 @@
 
 import doctest
 import math
+import os
 import random
 import sys
 
@@ -473,6 +474,10 @@ def profile_for(email):
          'uid' : 10}
     return profile_encode(d)
 
+P13_KEY = os.urandom(KEYSIZE)
+def profile_cookie(email):
+    return AES128_encrypt(pkcs7pad(profile_for(email)), P13_KEY)
+
 def gen_admin_profile(oracle):
     # General strategy:
     # 1. Deduce the block size.
@@ -507,6 +512,7 @@ def gen_admin_profile(oracle):
 
 
 def run_p13():
+    AES128_encrypt('hello', 'x' * 16)
     pass
 
 """
