@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import collections
 import doctest
 import math
 import os
@@ -476,7 +477,37 @@ def profile_for(email):
 
 P13_KEY = os.urandom(KEYSIZE)
 def profile_cookie(email):
-    return AES128_encrypt(pkcs7pad(profile_for(email)), P13_KEY)
+    return AES128_encrypt(pkcs7pad(profile_for(email).encode(), BLOCKSIZE), P13_KEY)
+
+def hamming_bytes(a, b):
+    """
+    >>> hamming_bytes("wokka", "holla")
+    3
+    """
+    assert(len(a) == len(b))
+    ct = 0
+    for x,y in zip(a, b):
+        if x != y:
+            ct += 1
+    return ct
+
+def find_block_size(oracle):
+    """
+    >>> find_block_size(profile_cookie)
+    16
+    """
+    # Feed a single-byte input. Count how many bytes are different. Do
+    # this many times and pick the most common number of bytes-changed
+    # as the likely blocksize. Most of the time, all the blocks will
+    # change, but in lieu of computing the probability exactly, I'll
+    # just hit it with the sledgehammer of 100 repetitions. That
+    # should do it.
+    origin = oracle(chr(127))
+    runs = [hamming_bytes(origin, oracle(chr(x))) for x in range(100)]
+    histo = collections.Counter(runs)
+    winner, ct = histo.most_common(1)[0]
+    return winner
+    
 
 def gen_admin_profile(oracle):
     # General strategy:
