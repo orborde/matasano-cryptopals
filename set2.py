@@ -6,7 +6,7 @@ import os
 import random
 import sys
 
-from set_1 import b2b64, b642b, grouper, xorvec
+from set1 import b2b64, b642b, grouper, xorvec
 
 """
 // ------------------------------------------------------------
