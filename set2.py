@@ -653,6 +653,24 @@ mode have this property?
 // ------------------------------------------------------------
 """
 
+P16_KEY = os.urandom(KEYSIZE)
+def p16_cookie(userdata):
+    """
+    >>> print(p16_cookie_decode(p16_cookie(b'hello')).decode())
+    hello
+    >>> print(p16_cookie_decode(p16_cookie(b';admin=true;')).decode())
+    \;admin\=true\;
+    """
+    # Sanitize
+    userdata = userdata.replace(b';', b'\\;')
+    userdata = userdata.replace(b'=', b'\\=')
+    # And go!
+    return AES128_CBC_encrypt(pkcs7pad(userdata, BLOCKSIZE), P16_KEY)
+
+def p16_cookie_decode(cookie):
+    return pkcs7unpad(AES128_CBC_decrypt(cookie, P16_KEY))
+
+
 if __name__ == '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
