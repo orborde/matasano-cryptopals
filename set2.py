@@ -576,7 +576,62 @@ def p14_oracle(data):
     return AES128_ECB(pkcs7pad(P14_PREFIX + data + P14_TARGET_BYTES),
                       P14_KEY)
 
-# TODO
+def find_data_injection_point(oracle):
+    # Figure out what block the beginning byte is in.
+    nul = list(grouper(BLOCKSIZE, oracle(b'')))
+    single = list(grouper(BLOCKSIZE, oracle(b'x')))
+    # The first block that differs between the two contains the first
+    # byte.
+    for i in range(min(len(single), len(nul))):
+        if nul[i] != single[i]:
+            return i
+    return None
+
+def find_distance_to_block_edge(oracle, injection_block):
+    # Figure out how many bytes of data we need to add to fill up the
+    # block where data is injected.
+
+    def test_ct(i):
+        # Generate a candidate injection block. Used later.
+        data = b'x' * i
+        blocks = list(grouper(BLOCKSIZE, oracle(data)))
+        return blocks[injection_block]
+
+    ct = 0
+    last_try = test_ct(0)
+    while last_try == test_ct(ct):
+        ct += 1
+
+    return ct
+    
+
+def run_p14():
+    # Where is our data getting injected in the oracle's output?
+    injection_block_index = find_data_injection_block(p14_oracle)
+    # How many bytes of data do we need to prefix our input with in
+    # order to guarantee that it lines up at a block boundary?
+    pad_bytes = find_distance_to_block_edge(p14_oracle,
+                                            injection_block_index)
+    # OK, now define a variant on the oracle that pads the data to
+    # fill the injection_block and returns the p14_oracle output
+    # starting right after injection_block. Then we can apply the same
+    # technique we did in p12.
+    def new_oracle(data):
+        injection_block_bytes = (injection_block_index + 1) * BLOCKSIZE
+        return p14_oracle(data)[injection_block_bytes:]
+
+    secret_suffix_length = find_secret_suffix_length(new_oracle)
+    known_prefix = bytearray()
+    for i in range(secret_suffix_length):
+        next_byte = find_next_byte(new_oracle, BLOCKSIZE, known_prefix)
+        known_prefix.append(next_byte)
+    secret_suffix = known_prefix
+    if secret_suffix != P14_TARGET_BYTES:
+        print("OH NOOOOO")
+    else:
+        print secret_suffix
+
+    
 
 """
 15. PKCS#7 padding validation
