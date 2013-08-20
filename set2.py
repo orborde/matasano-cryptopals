@@ -618,8 +618,9 @@ def run_p14():
     # starting right after injection_block. Then we can apply the same
     # technique we did in p12.
     def new_oracle(data):
+        pad_vector = bytes(pad_bytes)
         injection_block_bytes = (injection_block_index + 1) * BLOCKSIZE
-        return p14_oracle(data)[injection_block_bytes:]
+        return p14_oracle(pad_vector + data)[injection_block_bytes:]
 
     secret_suffix_length = find_secret_suffix_length(new_oracle)
     known_prefix = bytearray()
