@@ -573,10 +573,11 @@ P14_TARGET_BYTES = SECRET_SUFFIX_12
 P14_KEY = os.urandom(KEYSIZE)
 P14_PREFIX = os.urandom(random.randint(1,50))
 def p14_oracle(data):
-    return AES128_ECB(pkcs7pad(P14_PREFIX + data + P14_TARGET_BYTES),
-                      P14_KEY)
+    return AES128_encrypt(
+        pkcs7pad(P14_PREFIX + data + P14_TARGET_BYTES, BLOCKSIZE),
+        P14_KEY)
 
-def find_data_injection_point(oracle):
+def find_data_injection_block(oracle):
     # Figure out what block the beginning byte is in.
     nul = list(grouper(BLOCKSIZE, oracle(b'')))
     single = list(grouper(BLOCKSIZE, oracle(b'x')))
@@ -629,7 +630,7 @@ def run_p14():
     if secret_suffix != P14_TARGET_BYTES:
         print("OH NOOOOO")
     else:
-        print secret_suffix
+        print(secret_suffix)
 
     
 
