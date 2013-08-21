@@ -731,7 +731,27 @@ def p16_cookie_is_admin(cookie):
 
 def run_p16():
     print('Problem 16')
-    
+    # Get a cookie using some random data.
+    cookie = p16_cookie(b'ohai')
+    assert(not p16_cookie_is_admin(cookie))
+    # The second block of the cookie encodes the first block of the
+    # prefix. Since we know that, we can modify the IV (the first
+    # block of the cookie) such that the second block will decode to
+    # what we want.
+    new_first_block_plaintext = b';admin=true;'
+    new_first_block_plaintext += bytes((-len(new_first_block_plaintext))
+                                       % BLOCKSIZE)
+
+    old_iv = cookie[:BLOCKSIZE]
+    new_iv = xorvec(old_iv,
+                    xorvec(P16_PREFIX[:BLOCKSIZE], new_first_block_plaintext))
+
+    new_cookie = new_iv + cookie[BLOCKSIZE:]
+    if p16_cookie_is_admin(new_cookie):
+        print('We made an admin cookie!')
+    else:
+        print('Our best attempts at forgery were insufficient. We made this cookie:')
+        print(p16_cookie_decode(new_cookie))
 
 
 if __name__ == '__main__':
