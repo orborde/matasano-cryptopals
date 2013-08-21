@@ -603,7 +603,7 @@ def find_distance_to_block_edge(oracle, injection_block):
         ct += 1
 
     return ct - 1
-    
+
 
 def run_p14():
     print('Problem 14')
