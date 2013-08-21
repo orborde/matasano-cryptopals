@@ -660,6 +660,10 @@ make your function throw an exception on bad padding.
 ############################################################
 # See pkcs7unpad and its doctests at the top of this file. #
 ############################################################
+def run_p15():
+    print('Problem 15 has no output. See the source code.')
+    print()
+
 
 """
 
@@ -757,9 +761,11 @@ def run_p16():
 if __name__ == '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
-    #run_p9()
-    #run_p10()
-    #run_p11()
-    #run_p12()
-    #run_p13()
+    run_p9()
+    run_p10()
+    run_p11()
+    run_p12()
+    run_p13()
+    run_p14()
+    run_p15()
     run_p16()
