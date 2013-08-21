@@ -596,12 +596,13 @@ def find_distance_to_block_edge(oracle, injection_block):
         blocks = list(grouper(BLOCKSIZE, oracle(data)))
         return blocks[injection_block]
 
-    ct = 0
     last_try = test_ct(0)
-    while last_try == test_ct(ct):
+    ct = 1
+    while last_try != test_ct(ct):
+        last_try = test_ct(ct)
         ct += 1
 
-    return ct
+    return ct - 1
     
 
 def run_p14():
