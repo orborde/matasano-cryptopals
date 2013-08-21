@@ -610,6 +610,7 @@ def find_distance_to_block_edge(oracle, injection_block):
     
 
 def run_p14():
+    print('Problem 14')
     # Where is our data getting injected in the oracle's output?
     injection_block_index = find_data_injection_block(p14_oracle)
     # How many bytes of data do we need to prefix our input with in
