@@ -625,6 +625,7 @@ def run_p14():
     secret_suffix_length = find_secret_suffix_length(new_oracle)
     known_prefix = bytearray()
     for i in range(secret_suffix_length):
+        print(known_prefix)
         next_byte = find_next_byte(new_oracle, BLOCKSIZE, known_prefix)
         known_prefix.append(next_byte)
     secret_suffix = known_prefix
