@@ -361,6 +361,18 @@ def find_next_byte(oracle, blocksize, known_prefix):
     # Hmm. That didn't work. PANIC.
     assert(False)
 
+def find_secret_suffix(oracle, blocksize):
+    secret_suffix_length = find_secret_suffix_length(oracle)
+    print('The secret suffix is', secret_suffix_length, 'bytes long.')
+
+    known_prefix = bytearray()
+    for i in range(secret_suffix_length):
+        #print(known_prefix)
+        next_byte = find_next_byte(oracle, blocksize, known_prefix)
+        known_prefix.append(next_byte)
+    secret_suffix = known_prefix
+    #print(len(secret_suffix), secret_suffix)
+    return secret_suffix
 
 def run_p12():
     print('Problem 12')
@@ -374,16 +386,7 @@ def run_p12():
     else:
         print('ECB detected, as expected.')
 
-    secret_suffix_length = find_secret_suffix_length(oracle)
-    print('The secret suffix is', secret_suffix_length, 'bytes long.')
-
-    known_prefix = bytearray()
-    for i in range(secret_suffix_length):
-        #print(known_prefix)
-        next_byte = find_next_byte(oracle, blocksize, known_prefix)
-        known_prefix.append(next_byte)
-    secret_suffix = known_prefix
-    #print(len(secret_suffix), secret_suffix)
+    secret_suffix = find_secret_suffix(oracle, blocksize)
 
     if not secret_suffix == SECRET_SUFFIX_12:
         print("WE'RE WRONNNNNNGGG!")
