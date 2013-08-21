@@ -622,17 +622,12 @@ def run_p14():
         injection_block_bytes = (injection_block_index + 1) * BLOCKSIZE
         return p14_oracle(pad_vector + data)[injection_block_bytes:]
 
-    secret_suffix_length = find_secret_suffix_length(new_oracle)
-    known_prefix = bytearray()
-    for i in range(secret_suffix_length):
-        print(known_prefix)
-        next_byte = find_next_byte(new_oracle, BLOCKSIZE, known_prefix)
-        known_prefix.append(next_byte)
-    secret_suffix = known_prefix
-    if secret_suffix != P14_TARGET_BYTES:
-        print("OH NOOOOO")
+    secret_suffix = find_secret_suffix(new_oracle, BLOCKSIZE)
+    if secret_suffix != SECRET_SUFFIX_12:
+        print("We ... didn't get it?!")
     else:
-        print(secret_suffix)
+        print("Found it! The secret suffix was:")
+        print(secret_suffix.decode())
 
     
 
