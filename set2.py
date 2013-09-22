@@ -754,7 +754,8 @@ def run_p16():
 
     old_iv = cookie[:BLOCKSIZE]
     new_iv = xorvec(old_iv,
-                    xorvec(P16_PREFIX[:BLOCKSIZE], new_first_block_plaintext))
+                    P16_PREFIX[:BLOCKSIZE],
+                    new_first_block_plaintext)
 
     new_cookie = new_iv + cookie[BLOCKSIZE:]
     if p16_cookie_is_admin(new_cookie):
