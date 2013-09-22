@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import doctest
+
 """
 // ------------------------------------------------------------
 
@@ -68,10 +70,13 @@ block, whether it's padded or not.
 
 """
 
-import base64
+import os
 import random
 
-P17_PLAINTEXTS = map(base64.b64decode, [
+from set1 import b2b64, b642b, grouper, xorvec
+from set2 import *
+
+P17_PLAINTEXTS = map(b642b, [
         'MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=',
         'MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic=',
         'MDAwMDAyUXVpY2sgdG8gdGhlIHBvaW50LCB0byB0aGUgcG9pbnQsIG5vIGZha2luZw==',
@@ -82,6 +87,61 @@ P17_PLAINTEXTS = map(base64.b64decode, [
         'MDAwMDA3SSdtIG9uIGEgcm9sbCwgaXQncyB0aW1lIHRvIGdvIHNvbG8=',
     'MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g=',
         'MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93'])
+
+P17_KEY = os.urandom(KEYSIZE)
+
+def p17_mysterytext():
+    plaintext = random.choice(P17_PLAINTEXTS)
+    return AES128_CBC_encrypt(pkcs7pad(plaintext), P17_KEY)
+
+def p17_padding_oracle(ciphertext):
+    padded = AES128_CBC_decrypt(ciphertext, P17_KEY)
+    if pkcs7unpad_core(padded) is None:
+        return False
+    return True
+
+def zero_prefix(data, size):
+    return bytes(size - len(data)) + data
+
+def zero_suffix(data, size):
+    return data + bytes(size - len(data))
+
+def padding_oracle_crack(oracle, prev_block, block):
+    def crack_helper(index, known_part):
+        # If we are trying to crack the 2nd byte of 16, we want 15
+        # bytes of padding. The i'th byte corresponds to
+        # index = (i - 1), and we happen to want
+        # BLOCKSIZE - (i - 1) pad bytes. Very convenient.
+        pad_char = BLOCKSIZE - index
+        tamper_suffix_len = pad_char - 1
+        pad_suffix = bytes([pad_char] * tamper_suffix_len)
+        tamper_iv_suffix = xorvec(prev_block[-tamper_suffix_len:],
+                                  known_part[-tamper_suffix_len:],
+                                  pad_suffix)
+        assert(len(tamper_iv_suffix) == pad_char - 1)
+        # OK, now we look for tamper_iv[index] (let's call that 'k')
+        # such that
+        #
+        # (tamper_iv^aes_decrypt(block))[index] == pad_char.
+        #
+        # We do that by finding a tamper_iv that results in
+        # tamper_iv^aes_decrypt(block) being a block with valid
+        # padding, and we do that using the padding oracle. There's a
+        # wrinkle here, though; there are sometimes *two*
+        # candidates. Consider the case where the target plaintext
+        # ends with '\x02\x55'. Replacing 0x55 by either 0x01 *or*
+        # 0x02 will produce a correctly padded block. However, the
+        # tamper_iv[index] that produced 0x01 will (probably) at some
+        # point lead us down a blind alley where we can not find the
+        # next tamper_iv[index], and, at that point, we backtrack.
+        #
+        # TODO: eliminate the probabilistic element from the above.
+        candidates = []
+        for k in range(256):
+            tamper_iv = zero_prefix([k] + tamper_iv_suffix, BLOCKSIZE)
+            if oracle(tamper_iv + block):
+                candidates.append(k)
+        
 
 """
 // ------------------------------------------------------------
