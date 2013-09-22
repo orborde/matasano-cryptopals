@@ -192,10 +192,16 @@ INPUT_2A = '1c0111001f010100061a024b53535009181c'
 INPUT_2B = '686974207468652062756c6c277320657965'
 OUTPUT_2 = '746865206b696420646f6e277420706c6179'
 
-def xorvec(a, b):
-    """XORs two bytes() objects together"""
+def xorvec_helper(a, b):
     assert(len(a) == len(b))
     return bytes((x ^ y) for x,y in zip(a,b))
+
+def xorvec(*args):
+    """XORs bytes() objects together"""
+    output = args[0]
+    for n in args[1:]:
+        output = xorvec_helper(output, n)
+    return output
 
 def run_p2():
     print('Problem 2')
