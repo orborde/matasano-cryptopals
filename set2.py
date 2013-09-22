@@ -62,10 +62,16 @@ def pkcs7unpad(data):
     Exception: Bad padding!
 
     """
+    unpadded = pkcs7unpad_core(data)
+    if unpadded is None:
+        raise Exception('Bad padding!')
+    return unpadded
+
+def pkcs7unpad_core(data):
     padlen = data[-1]
     for c in data[-padlen:]:
         if c != padlen:
-            raise Exception('Bad padding!')
+            return None
     return data[:-padlen]
 
 
