@@ -118,7 +118,7 @@ def padding_oracle_crack(oracle, prev_block, block):
         # BLOCKSIZE - (i - 1) pad bytes. Very convenient.
         pad_char = BLOCKSIZE - index
         tamper_suffix_len = pad_char - 1
-        assert(tamper_suffix_len + len(known_part) + 1 == BLOCKSIZE)
+        assert(tamper_suffix_len + index + 1 == BLOCKSIZE)
         # Create a suffix to the tamper IV such that AES_decrypt(block) XOR
         # prev_block XOR tamper_iv will have a suffix of pad_char.
         #
@@ -134,9 +134,12 @@ def padding_oracle_crack(oracle, prev_block, block):
         #   instead of recomputing it every time)
         # T[i] = K ^ P[i] ^ V[i]
         pad_suffix = bytes([pad_char] * tamper_suffix_len)
-        tamper_iv_suffix = xorvec(pad_suffix,
-                                  known_part[-tamper_suffix_len:],
-                                  prev_block[-tamper_suffix_len:])
+        if tamper_suffix_len > 0:
+            tamper_iv_suffix = xorvec(pad_suffix,
+                                      known_part[-tamper_suffix_len:],
+                                      prev_block[-tamper_suffix_len:])
+        else:
+            tamper_iv_suffix = bytes()
         assert(len(tamper_iv_suffix) == pad_char - 1)
         # OK, now we look for tamper_iv[index] (let's call that 'k')
         # such that
@@ -157,10 +160,10 @@ def padding_oracle_crack(oracle, prev_block, block):
         # TODO: eliminate the probabilistic element from the above.
         candidates = []
         for k in range(256):
-            tamper_iv = zero_prefix([k] + tamper_iv_suffix, BLOCKSIZE)
+            tamper_iv = zero_prefix(bytes([k]) + tamper_iv_suffix, BLOCKSIZE)
             if oracle(tamper_iv + block):
                 candidates.append(k)
-        return [[c] + known_part for c in candidates]
+        return [bytes([c]) + known_part for c in candidates]
 
     assert(len(prev_block) == BLOCKSIZE)
     assert(len(block) == BLOCKSIZE)
@@ -188,7 +191,7 @@ assert(P17_TEST_CIPHERTEXT[:BLOCKSIZE] == P17_TEST_IV)
 
 def p17_test_oracle(ciphertext):
     assert(len(ciphertext) == 2*BLOCKSIZE)
-    padded = AES128_CBC_decrypt(ciphertext)
+    padded = AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
     return True
