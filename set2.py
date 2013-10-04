@@ -132,8 +132,9 @@ def AES128_decrypt(ciphertext, key):
     plaintext = aes.decrypt(ciphertext)
     return plaintext
 
-def AES128_CBC_encrypt(plaintext, key):
-    iv = os.urandom(BLOCKSIZE)
+def AES128_CBC_encrypt(plaintext, key, iv=None):
+    if iv is None:
+        iv = os.urandom(BLOCKSIZE)
     last_cipherblock = iv
     ciphertext = bytearray(iv)
     for block in grouper(BLOCKSIZE, plaintext):
