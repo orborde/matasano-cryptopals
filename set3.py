@@ -170,7 +170,7 @@ def padding_oracle_crack(oracle, prev_block, block):
     suffix_possibilities = [bytes()]
     for i in range(BLOCKSIZE):
         index = BLOCKSIZE - i - 1
-        print('At index', index)
+        print('Solving index', index)
         if len(suffix_possibilities) == 0:
             print('No possibilities left!')
             break
@@ -178,7 +178,7 @@ def padding_oracle_crack(oracle, prev_block, block):
         new_suffix_possibilities = []
         for p in suffix_possibilities:
             adds = crack_helper(index, p)
-            print(p, '(expanded to ', len(adds), 'possibilities)')
+            print(p, '(expanded to', len(adds), 'possibilities)')
             new_suffix_possibilities.extend(adds)
         suffix_possibilities = new_suffix_possibilities
 
