@@ -108,16 +108,35 @@ def zero_suffix(data, size):
 
 def padding_oracle_crack(oracle, prev_block, block):
     def crack_helper(index, known_part):
+        # index: character that we're trying to deduce
+        # known_part: the last (blocksize - index - 1) bytes of the block
+        #   plaintext, which we should know at this point.
+
         # If we are trying to crack the 2nd byte of 16, we want 15
         # bytes of padding. The i'th byte corresponds to
         # index = (i - 1), and we happen to want
         # BLOCKSIZE - (i - 1) pad bytes. Very convenient.
         pad_char = BLOCKSIZE - index
         tamper_suffix_len = pad_char - 1
+        assert(tamper_suffix_len + len(known_part) + 1 == BLOCKSIZE)
+        # Create a suffix to the tamper IV such that AES_decrypt(block) XOR
+        # prev_block XOR tamper_iv will have a suffix of pad_char.
+        #
+        # K = padding character
+        # D[i] = AES_decrypt(block)[i]
+        # V[i] = prev_block[i]
+        # P[i] = known_part[i]
+        # T[i] = tamper_iv[i]
+        #
+        # We know that P[i] = V[i] ^ D[i]. We want D[i] ^ T[i] = K.
+        # T[i] = K ^ D[i]
+        # D[i] = P[i] ^ V[i] (yes, we could theoretically keep this around
+        #   instead of recomputing it every time)
+        # T[i] = K ^ P[i] ^ V[i]
         pad_suffix = bytes([pad_char] * tamper_suffix_len)
-        tamper_iv_suffix = xorvec(prev_block[-tamper_suffix_len:],
+        tamper_iv_suffix = xorvec(pad_suffix,
                                   known_part[-tamper_suffix_len:],
-                                  pad_suffix)
+                                  prev_block[-tamper_suffix_len:])
         assert(len(tamper_iv_suffix) == pad_char - 1)
         # OK, now we look for tamper_iv[index] (let's call that 'k')
         # such that
@@ -141,7 +160,41 @@ def padding_oracle_crack(oracle, prev_block, block):
             tamper_iv = zero_prefix([k] + tamper_iv_suffix, BLOCKSIZE)
             if oracle(tamper_iv + block):
                 candidates.append(k)
-        
+        return [[c] + known_part for c in candidates]
+
+    assert(len(prev_block) == BLOCKSIZE)
+    assert(len(block) == BLOCKSIZE)
+    suffix_possibilities = [bytes()]
+    for i in range(BLOCKSIZE):
+        index = BLOCKSIZE - i - 1
+        print('At index', index)
+        if len(suffix_possibilities) == 0:
+            print('No possibilities left!')
+            break
+        print('Possibilities are:')
+        new_suffix_possibilities = []
+        for p in suffix_possibilities:
+            adds = crack_helper(index, p)
+            print(p, '(expanded to ', len(adds), 'possibilities)')
+            new_suffix_possibilities.extend(adds)
+        suffix_possibilities = new_suffix_possibilities
+
+P17_TEST_KEY = b'1234567890123456'
+P17_TEST_IV = bytes(BLOCKSIZE)
+P17_TEST_PLAINTEXT = b'moofy hollins eh'
+P17_TEST_CIPHERTEXT = AES128_CBC_encrypt(
+    P17_TEST_PLAINTEXT, P17_TEST_KEY, iv=P17_TEST_IV)
+assert(P17_TEST_CIPHERTEXT[:BLOCKSIZE] == P17_TEST_IV)
+
+def p17_test_oracle(ciphertext):
+    assert(len(ciphertext) == 2*BLOCKSIZE)
+    padded = AES128_CBC_decrypt(ciphertext)
+    if pkcs7unpad_core(padded) is None:
+        return False
+    return True
+
+padding_oracle_crack(
+    p17_test_oracle, P17_TEST_IV, P17_TEST_CIPHERTEXT[-BLOCKSIZE:])
 
 """
 // ------------------------------------------------------------
