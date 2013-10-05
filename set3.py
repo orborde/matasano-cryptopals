@@ -162,7 +162,13 @@ def padding_oracle_crack(oracle, prev_block, block):
         for T in range(256):
             tamper_iv = zero_prefix(bytes([T]) + tamper_iv_suffix, BLOCKSIZE)
             if oracle(tamper_iv + block):
-                candidates.append(T ^ pad_char)
+                candidates.append(T)
+        # Now, remember, for each valid T,
+        # T ^ AES_decrypt(block)[index] = pad_char
+        # We want to recover the *actual* plaintext, which is:
+        # plaintext_byte = prev_block[index] ^ AES_decrypt(block)[index]
+        #                = prev_block[index] ^ T ^ pad_char
+        candidates = [prev_block[index] ^ T ^ pad_char for T in candidates]
         return [bytes([c]) + known_part for c in candidates]
 
     assert(len(prev_block) == BLOCKSIZE)
@@ -183,7 +189,7 @@ def padding_oracle_crack(oracle, prev_block, block):
         suffix_possibilities = new_suffix_possibilities
 
 P17_TEST_KEY = b'1234567890123456'
-P17_TEST_IV = bytes(BLOCKSIZE)
+P17_TEST_IV = os.urandom(BLOCKSIZE)
 P17_TEST_PLAINTEXT = b'moofy hollins eh'
 P17_TEST_CIPHERTEXT = AES128_CBC_encrypt(
     P17_TEST_PLAINTEXT, P17_TEST_KEY, iv=P17_TEST_IV)
@@ -197,6 +203,7 @@ def p17_test_oracle(ciphertext):
     print('oracle decoded valid:', padded)
     return True
 
+print(P17_TEST_IV)
 padding_oracle_crack(
     p17_test_oracle, P17_TEST_IV, P17_TEST_CIPHERTEXT[-BLOCKSIZE:])
 
