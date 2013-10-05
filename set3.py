@@ -240,7 +240,7 @@ def run_p17():
         # Heck, let's unpad them and all!
         print(pkcs7unpad(p).decode())
 
-run_p17()
+#run_p17()
 
 """
 // ------------------------------------------------------------
