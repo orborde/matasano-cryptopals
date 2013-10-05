@@ -176,15 +176,15 @@ def padding_oracle_crack(oracle, prev_block, block):
     suffix_possibilities = [bytes()]
     for i in range(BLOCKSIZE):
         index = BLOCKSIZE - i - 1
-        print('Solving index', index)
+        #print('Solving index', index)
         if len(suffix_possibilities) == 0:
-            print('No possibilities left!')
+            #print('No possibilities left!')
             break
-        print('Possibilities are:')
+        #print('Possibilities are:')
         new_suffix_possibilities = []
         for p in suffix_possibilities:
             adds = crack_helper(index, p)
-            print(p, '(expanded to', len(adds), 'possibilities)')
+            #print(p, '(expanded to', len(adds), 'possibilities)')
             new_suffix_possibilities.extend(adds)
         suffix_possibilities = new_suffix_possibilities
     return suffix_possibilities
@@ -201,7 +201,7 @@ def p17_test_oracle(ciphertext):
     padded = AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
-    print('oracle decoded valid:', padded)
+    #print('oracle decoded valid:', padded)
     return True
 
 def run_p17():
