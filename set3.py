@@ -187,6 +187,7 @@ def padding_oracle_crack(oracle, prev_block, block):
             print(p, '(expanded to', len(adds), 'possibilities)')
             new_suffix_possibilities.extend(adds)
         suffix_possibilities = new_suffix_possibilities
+    return suffix_possibilities
 
 P17_TEST_KEY = b'1234567890123456'
 P17_TEST_IV = os.urandom(BLOCKSIZE)
@@ -203,9 +204,13 @@ def p17_test_oracle(ciphertext):
     print('oracle decoded valid:', padded)
     return True
 
-print(P17_TEST_IV)
-padding_oracle_crack(
-    p17_test_oracle, P17_TEST_IV, P17_TEST_CIPHERTEXT[-BLOCKSIZE:])
+def run_p17():
+    # Here's a stupid quick hack to make sure it's more-or-less working.
+    assert([P17_TEST_PLAINTEXT] ==
+           padding_oracle_crack(
+               p17_test_oracle, P17_TEST_IV, P17_TEST_CIPHERTEXT[-BLOCKSIZE:]))
+
+run_p17()
 
 """
 // ------------------------------------------------------------
