@@ -314,13 +314,16 @@ def AES128_CTR_keystream(key, nonce):
         next_plaintext = nonce + int2bytes(ctr, BLOCKSIZE//2)
         for c in AES128_encrypt(next_plaintext, key):
             yield c
+        ctr +=1 
 
+CTR_TEST = b'hello potato, i am a cheese'
 def AES128_CTR_crypt(key, nonce, data):
     """
-    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, b'hello potatobean') != b'hello potato'
+    # Isn't this a hilarious test?
+    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST) != CTR_TEST
     True
-    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, b'hello potato'))
-    b'hello potato'
+    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST)) == CTR_TEST
+    True
     """
     nonce = int2bytes(nonce, BLOCKSIZE//2)
     return bytes(x^y for x, y in zip(AES128_CTR_keystream(key, nonce), data))
@@ -533,3 +536,5 @@ the product of an MT19937 PRNG seeded with the current time.
 if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
+    #run_p17()
+    run_p18()
