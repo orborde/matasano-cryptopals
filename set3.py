@@ -314,7 +314,7 @@ def AES128_CTR_keystream(key, nonce):
         next_plaintext = nonce + int2bytes(ctr, BLOCKSIZE//2)
         for c in AES128_encrypt(next_plaintext, key):
             yield c
-        ctr +=1 
+        ctr += 1
 
 CTR_TEST = b'hello potato, i am a cheese'
 def AES128_CTR_crypt(key, nonce, data):
