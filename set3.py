@@ -106,7 +106,7 @@ def zero_prefix(data, size):
 def zero_suffix(data, size):
     return data + bytes(size - len(data))
 
-def padding_oracle_crack(oracle, prev_block, block):
+def padding_oracle_crack_block(oracle, prev_block, block):
     def crack_helper(index, known_part):
         # index: character that we're trying to deduce
         # known_part: the last (blocksize - index - 1) bytes of the block
@@ -189,6 +189,17 @@ def padding_oracle_crack(oracle, prev_block, block):
         suffix_possibilities = new_suffix_possibilities
     return suffix_possibilities
 
+def padding_oracle_crack(oracle, ciphertext):
+    assert(len(ciphertext) % BLOCKSIZE == 0)
+    data = bytearray()
+    for i in range(0, len(ciphertext)//BLOCKSIZE - 1):
+        prev_block = ciphertext[(i*BLOCKSIZE):((i+1)*BLOCKSIZE)]
+        block = ciphertext[((i+1)*BLOCKSIZE):((i+2)*BLOCKSIZE)]
+        candidates = padding_oracle_crack_block(oracle, prev_block, block)
+        assert(len(candidates) == 1)
+        data.extend(candidates[0])
+    return data
+
 P17_TEST_KEY = b'1234567890123456'
 P17_TEST_IV = os.urandom(BLOCKSIZE)
 P17_TEST_PLAINTEXT = b'moofy hollins eh'
@@ -206,9 +217,8 @@ def p17_test_oracle(ciphertext):
 
 def run_p17():
     # Here's a stupid quick hack to make sure it's more-or-less working.
-    assert([P17_TEST_PLAINTEXT] ==
-           padding_oracle_crack(
-               p17_test_oracle, P17_TEST_IV, P17_TEST_CIPHERTEXT[-BLOCKSIZE:]))
+    assert(P17_TEST_PLAINTEXT ==
+           padding_oracle_crack(p17_test_oracle, P17_TEST_CIPHERTEXT))
 
 run_p17()
 
