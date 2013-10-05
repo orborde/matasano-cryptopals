@@ -141,7 +141,7 @@ def padding_oracle_crack(oracle, prev_block, block):
         else:
             tamper_iv_suffix = bytes()
         assert(len(tamper_iv_suffix) == pad_char - 1)
-        # OK, now we look for tamper_iv[index] (let's call that 'k')
+        # OK, now we look for tamper_iv[index] (let's call that 'T')
         # such that
         #
         # (tamper_iv^aes_decrypt(block))[index] == pad_char.
@@ -159,10 +159,10 @@ def padding_oracle_crack(oracle, prev_block, block):
         #
         # TODO: eliminate the probabilistic element from the above.
         candidates = []
-        for k in range(256):
-            tamper_iv = zero_prefix(bytes([k]) + tamper_iv_suffix, BLOCKSIZE)
+        for T in range(256):
+            tamper_iv = zero_prefix(bytes([T]) + tamper_iv_suffix, BLOCKSIZE)
             if oracle(tamper_iv + block):
-                candidates.append(k)
+                candidates.append(T ^ pad_char)
         return [bytes([c]) + known_part for c in candidates]
 
     assert(len(prev_block) == BLOCKSIZE)
@@ -194,6 +194,7 @@ def p17_test_oracle(ciphertext):
     padded = AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
+    print('oracle decoded valid:', padded)
     return True
 
 padding_oracle_crack(
