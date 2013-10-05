@@ -291,6 +291,30 @@ XOR, and recover the plaintext.
 Decrypt the string at the top of this function, then use your CTR
 function to encrypt and decrypt other things.
 
+"""
+
+def int2bytes(n, length):
+    """
+    >>> int2bytes(2, 5)
+    b'\\x02\\x00\\x00\\x00\\x00'
+    >>> int2bytes(259, 5)
+    b'\\x03\\x01\\x00\\x00\\x00'
+    """
+    out = bytearray()
+    while n:
+        out.append(n % 256)
+        n = n // 256
+    assert(len(out) <= length)
+    return bytes(zero_suffix(out, length))
+
+def AES128_CTR_keystream(key, nonce):
+    assert(len(nonce) == BLOCKSIZE / 2)
+    ctr = 0
+    while True:
+        next_plaintext = nonce
+
+"""
+
 // ------------------------------------------------------------
 
 19. Break fixed-nonce CTR mode using substitions
@@ -484,3 +508,7 @@ Write a function to check if any given password token is actually
 the product of an MT19937 PRNG seeded with the current time.
 
 """
+
+if __name__== '__main__':
+    if (doctest.testmod()[0]) > 0:
+        sys.exit(1)
