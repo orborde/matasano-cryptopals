@@ -308,10 +308,31 @@ def int2bytes(n, length):
     return bytes(zero_suffix(out, length))
 
 def AES128_CTR_keystream(key, nonce):
-    assert(len(nonce) == BLOCKSIZE / 2)
+    assert(len(nonce) == BLOCKSIZE // 2)
     ctr = 0
     while True:
-        next_plaintext = nonce
+        next_plaintext = nonce + int2bytes(ctr, BLOCKSIZE//2)
+        for c in AES128_encrypt(next_plaintext, key):
+            yield c
+
+def AES128_CTR_crypt(key, nonce, data):
+    """
+    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, b'hello potatobean') != b'hello potato'
+    True
+    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, b'hello potato'))
+    b'hello potato'
+    """
+    nonce = int2bytes(nonce, BLOCKSIZE//2)
+    return bytes(x^y for x, y in zip(AES128_CTR_keystream(key, nonce), data))
+
+P18_CIPHERTEXT = b642b(
+    'L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==')
+P18_KEY = b'YELLOW SUBMARINE'
+P18_NONCE = 0
+
+def run_p18():
+    print('Problem 18')
+    print('Decryption:', AES128_CTR_crypt(P18_KEY, P18_NONCE, P18_CIPHERTEXT))
 
 """
 
