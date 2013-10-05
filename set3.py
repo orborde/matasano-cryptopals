@@ -76,23 +76,23 @@ import random
 from set1 import b2b64, b642b, grouper, xorvec
 from set2 import *
 
-P17_PLAINTEXTS = map(b642b, [
-        'MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=',
-        'MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic=',
-        'MDAwMDAyUXVpY2sgdG8gdGhlIHBvaW50LCB0byB0aGUgcG9pbnQsIG5vIGZha2luZw==',
-        'MDAwMDAzQ29va2luZyBNQydzIGxpa2UgYSBwb3VuZCBvZiBiYWNvbg==',
-        'MDAwMDA0QnVybmluZyAnZW0sIGlmIHlvdSBhaW4ndCBxdWljayBhbmQgbmltYmxl',
-        'MDAwMDA1SSBnbyBjcmF6eSB3aGVuIEkgaGVhciBhIGN5bWJhbA==',
-        'MDAwMDA2QW5kIGEgaGlnaCBoYXQgd2l0aCBhIHNvdXBlZCB1cCB0ZW1wbw==',
-        'MDAwMDA3SSdtIG9uIGEgcm9sbCwgaXQncyB0aW1lIHRvIGdvIHNvbG8=',
-        'MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g=',
-        'MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93'])
+P17_PLAINTEXTS = list(map(b642b, [
+    'MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=',
+    'MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic=',
+    'MDAwMDAyUXVpY2sgdG8gdGhlIHBvaW50LCB0byB0aGUgcG9pbnQsIG5vIGZha2luZw==',
+    'MDAwMDAzQ29va2luZyBNQydzIGxpa2UgYSBwb3VuZCBvZiBiYWNvbg==',
+    'MDAwMDA0QnVybmluZyAnZW0sIGlmIHlvdSBhaW4ndCBxdWljayBhbmQgbmltYmxl',
+    'MDAwMDA1SSBnbyBjcmF6eSB3aGVuIEkgaGVhciBhIGN5bWJhbA==',
+    'MDAwMDA2QW5kIGEgaGlnaCBoYXQgd2l0aCBhIHNvdXBlZCB1cCB0ZW1wbw==',
+    'MDAwMDA3SSdtIG9uIGEgcm9sbCwgaXQncyB0aW1lIHRvIGdvIHNvbG8=',
+    'MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g=',
+    'MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93']))
 
 P17_KEY = os.urandom(KEYSIZE)
 
 def p17_mysterytext():
     plaintext = random.choice(P17_PLAINTEXTS)
-    return AES128_CBC_encrypt(pkcs7pad(plaintext), P17_KEY)
+    return AES128_CBC_encrypt(pkcs7pad(plaintext, BLOCKSIZE), P17_KEY)
 
 def p17_padding_oracle(ciphertext):
     padded = AES128_CBC_decrypt(ciphertext, P17_KEY)
@@ -219,6 +219,26 @@ def run_p17():
     # Here's a stupid quick hack to make sure it's more-or-less working.
     assert(P17_TEST_PLAINTEXT ==
            padding_oracle_crack(p17_test_oracle, P17_TEST_CIPHERTEXT))
+
+    print("Trying to fish out all the mystery plaintexts...")
+    found = set()
+    # Inefficient probabilistic programming for the win!
+    #
+    # Presumably if we were *really* trying to find all of an unknown set of
+    # plaintexts, we'd use the German Tank Problem to try to estimate when we're
+    # done. Or just hammer on it for a while with random trials and hope that's
+    # enough, and maybe, given that there are convenient sequence numbers, keep
+    # hammering until we come up with a contiguous sequence, I suppose. The
+    # possibilities are endless, as is (coincidentally) this program's maximum
+    # runtime.
+    while len(found) < len(P17_PLAINTEXTS):
+        ciphertext = p17_mysterytext()
+        plaintext = padding_oracle_crack(p17_padding_oracle, ciphertext)
+        found.add(bytes(plaintext))
+    print("OK, we have all of them.")
+    for p in sorted(found):
+        # Heck, let's unpad them and all!
+        print(pkcs7unpad(p).decode())
 
 run_p17()
 
