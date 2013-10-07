@@ -335,15 +335,15 @@ def is_printable(vec):
     return all(c in PRINTABLE_BYTES for c in vec)
 
 
-def crack_xorchar(vec):
+def crack_xorchar(vec, metric=english_words_metric):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
     decrypts = [(c, xorchar(c, vec)) for c in range(256)]
+    decrypts.sort(key=lambda t: metric(t[1]))
     return decrypts
 
 
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
-    decrypts.sort(key=lambda t: english_words_metric(t[1]))
     decrypts.reverse()
 
     k, t = decrypts[0]
