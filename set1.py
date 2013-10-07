@@ -339,12 +339,12 @@ def crack_xorchar(vec, metric=english_words_metric):
     """Attempts to crack the xorchar "encryption" applied to byte array 'vec'"""
     decrypts = [(c, xorchar(c, vec)) for c in range(256)]
     decrypts.sort(key=lambda t: metric(t[1]))
+    decrypts.reverse()
     return decrypts
 
 
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
-    decrypts.reverse()
 
     k, t = decrypts[0]
     print('Problem 3')
