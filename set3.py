@@ -73,7 +73,7 @@ block, whether it's padded or not.
 import os
 import random
 
-from set1 import b2b64, b642b, grouper, xorvec
+from set1 import b2b64, b642b, crack_xorchar, grouper, xorvec
 from set2 import *
 
 P17_PLAINTEXTS = list(map(b642b, [
@@ -348,6 +348,8 @@ In SUCCESSIVE ENCRYPTIONS (NOT in one big running CTR stream), encrypt
 each line of the base64 decodes of the following,
 producing multiple independent ciphertexts:
 
+"""
+P19_CIPHERTEXTS = """
    SSBoYXZlIG1ldCB0aGVtIGF0IGNsb3NlIG9mIGRheQ==
    Q29taW5nIHdpdGggdml2aWQgZmFjZXM=
    RnJvbSBjb3VudGVyIG9yIGRlc2sgYW1vbmcgZ3JleQ==
@@ -388,7 +390,19 @@ producing multiple independent ciphertexts:
    SGUsIHRvbywgaGFzIGJlZW4gY2hhbmdlZCBpbiBoaXMgdHVybiw=
    VHJhbnNmb3JtZWQgdXR0ZXJseTo=
    QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=
+"""
 
+P19_CIPHERTEXTS = [b642b(line.strip()) for line in
+                   P19_CIPHERTEXTS.strip().splitlines()]
+assert(len(P19_CIPHERTEXTS) == 40)
+
+P19_NONCE = 0                  # Constant nonce (oh no!)
+P19_KEY = os.urandom(KEYSIZE)  # Strong key
+
+P19_CIPHERTEXTS = [AES128_CTR_crypt(P19_KEY, P19_NONCE, m)
+                   for m in P19_CIPHERTEXTS]
+
+"""
 (This should produce 40 short CTR-encrypted ciphertexts).
 
 Because the CTR nonce wasn't randomized for each encryption, each
@@ -412,6 +426,34 @@ expected English language frequence to validate guesses, catch common
 English trigrams, and so on. Points for automating this, but part of
 the reason I'm having you do this is that I think this approach is
 suboptimal.
+
+"""
+
+# OK, you know what? Doing that decipherment manually sounds like a PAAAAIN.
+
+def run_p19():
+    # Put all the first (second, third, etc.) bytes of the ciphertexts
+    # togther into a single "message" that we'll run XOR-cipher
+    # cracking on. Just skip ciphertexts that are too short to
+    # contribute a byte to the i'th message.
+    messages = []
+    key = bytearray()
+    for i in range(max(len(m) for m in P19_CIPHERTEXTS)):
+        message = bytearray()
+        for m in P19_CIPHERTEXTS:
+            if i >= len(m):
+                continue
+            message.append(m[i])
+        messages.append(message)
+        k, t = crack_xorchar(message)[0]
+        key.append(k)
+
+    # Start decrypting!
+    for m in P19_CIPHERTEXTS:
+        plaintext = xorvec(key[:len(m)], m)
+        print(m, '==>', plaintext)
+
+"""
 
 // ------------------------------------------------------------
 
@@ -535,4 +577,5 @@ if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
     #run_p17()
-    run_p18()
+    #run_p18()
+    run_p19()
