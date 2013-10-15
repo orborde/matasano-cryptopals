@@ -25,7 +25,8 @@ class mt:
         assert(uint32(seed) == seed)
         self.MT[0] = seed
         for i in range(1, 624):
-            self.MT[i] = uint32(0x6c078965 * ((MT[i-1] ^ (MT[i-1] >> 30)) + i))
+            self.MT[i] = uint32(
+                0x6c078965 * ((self.MT[i-1] ^ (self.MT[i-1] >> 30)) + i))
 
     def extract(self):
         if self.index == 0:
