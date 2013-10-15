@@ -25,12 +25,12 @@ class mt:
         assert(uint32(seed) == seed)
         self.MT[0] = seed
         for i in range(1, 624):
-            MT[i] = uint32(0x6c078965 * ((MT[i-1] ^ (MT[i-1] >> 30)) + i))
+            self.MT[i] = uint32(0x6c078965 * ((MT[i-1] ^ (MT[i-1] >> 30)) + i))
 
     def extract(self):
         if self.index == 0:
             self.generate_numbers()
-        y = MT[self.index]
+        y = self.MT[self.index]
         self.index += 1
         return temper(y)
 
