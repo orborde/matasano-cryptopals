@@ -35,4 +35,7 @@ class mt:
         self.index += 1
         return temper(y)
 
-
+m = mt()
+import random
+random.seed(0)
+print m.extract(), random.getrandbits(32)
