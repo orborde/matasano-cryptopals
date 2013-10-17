@@ -118,13 +118,11 @@ int main(void)
   int i;
   init_genrand(0);
 
-  dumpstate();
-  return 0;
-
-  printf("1000 outputs of genrand_int32()\n");
+  //printf("1000 outputs of genrand_int32()\n");
   for (i=0; i<1000; i++) {
-    printf("%10lu ", genrand_int32());
-    if (i%5==4) printf("\n");
+    //printf("%10lu ", genrand_int32());
+    //if (i%5==4) printf("\n");
+    printf("%lu\n", genrand_int32());
   }
   return 0;
 }

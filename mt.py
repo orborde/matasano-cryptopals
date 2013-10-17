@@ -37,11 +37,15 @@ class mt:
              self.MT[i] = self.MT[i] ^ (0x9908b0df)
 
     def extract(self):
-        if self.index == 0:
+        if self.index >= 624:
             self.generate_numbers()
+            self.index = 0
         y = self.MT[self.index]
         self.index += 1
         return temper(y)
 
 m = mt()
-print m.extract()
+
+for i in range(1000):
+    print m.extract()
+
