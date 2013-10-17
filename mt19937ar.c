@@ -119,7 +119,7 @@ void dumpstate() {
 int main(void)
 {
   int i;
-  init_genrand(0);
+  init_genrand(12345);
 
   //printf("1000 outputs of genrand_int32()\n");
   for (i=0; i<1000; i++) {

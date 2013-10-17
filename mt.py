@@ -45,7 +45,7 @@ class mt:
         self.index += 1
         return temper(y)
 
-m = mt()
+m = mt(12345)
 
 for i in range(1000):
     print m.extract()
