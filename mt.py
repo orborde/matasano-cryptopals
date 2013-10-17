@@ -27,6 +27,7 @@ class mt:
         for i in range(1, 624):
             self.MT[i] = uint32(
                 (0x6c078965 * ((self.MT[i-1] ^ (self.MT[i-1] >> 30))) + i))
+        self.index = 624
 
     def generate_numbers(self):
      for i in range(624):
