@@ -28,6 +28,14 @@ class mt:
             self.MT[i] = uint32(
                 0x6c078965 * ((self.MT[i-1] ^ (self.MT[i-1] >> 30)) + i))
 
+    def generate_numbers(self):
+     for i in range(624):
+         y = ((self.MT[i] & 0x80000000)
+              + (self.MT[(i+1) % 624] & 0x7fffffff))
+         self.MT[i] = self.MT[(i + 397) % 624] ^ (y >> 1)
+         if (y % 2) != 0:
+             self.MT[i] = self.MT[i] ^ (0x9908b0df)
+
     def extract(self):
         if self.index == 0:
             self.generate_numbers()
@@ -36,6 +44,4 @@ class mt:
         return temper(y)
 
 m = mt()
-import random
-random.seed(0)
-print m.extract(), random.getrandbits(32)
+print m.extract()
