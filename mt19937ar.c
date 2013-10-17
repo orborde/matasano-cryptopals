@@ -108,8 +108,9 @@ unsigned long genrand_int32(void)
 }
 
 void dumpstate() {
+  int i;
   for (i = 0; i < N; i++)
-    printf("%d %lu", i, mt[i]);
+    printf("%d %lu\n", i, mt[i]);
 }
 
 int main(void)
