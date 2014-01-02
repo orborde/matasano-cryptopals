@@ -489,6 +489,12 @@ in Python, Ruby, or (gah) PHP, your language is probably already
 giving you MT19937 as "rand()"; don't use rand(). Write the RNG
 yourself.
 
+"""
+
+# See mt.py
+
+"""
+
 // ------------------------------------------------------------
 
 22. "Crack" An MT19937 Seed
