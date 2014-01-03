@@ -492,6 +492,7 @@ yourself.
 """
 
 # See mt.py
+from mt import mt
 
 """
 
@@ -517,7 +518,40 @@ passage of time, although you're missing some of the fun of this
 exercise if you do that.
 
 From the 32 bit RNG output, discover the seed.
+"""
 
+import time
+
+def itime():
+    return int(time.time())
+
+def run_p22():
+    print('Problem 22')
+    # Simulating the passage of time is great!
+    print('Seeding the RNG')
+    seed_time = itime() + random.randint(40, 1000)
+    m = mt(seed_time)
+    print('Advancing time')
+    the_now = seed_time + random.randint(40, 1000)
+    print('Extract and crack!')
+    output = m.extract()
+
+    # Back up in time until we find the generating seed.
+    backup = 0
+    while True:
+        tt = the_now - backup
+        if output == mt(tt).extract():
+            print('Found it!')
+            break
+        backup += 1
+
+    if tt == seed_time:
+        print('Correctly deduced the seed time')
+    else:
+        print('Got the wrong seed time :(')
+
+
+"""
 // ------------------------------------------------------------
 
 23. Clone An MT19937 RNG From Its Output
