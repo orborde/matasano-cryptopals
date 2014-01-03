@@ -46,7 +46,12 @@ class mt:
         return temper(y)
 
 if __name__ == '__main__':
-    m = mt(12345)
-    for i in range(1000):
-        print(m.extract())
+    import doctest
+    fail, _ = doctest.testmod()
+    if fail > 0:
+        print('Some tests failed!')
+    else:
+        m = mt(12345)
+        for i in range(1000):
+            print(m.extract())
 
