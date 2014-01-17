@@ -15,6 +15,11 @@ def temper(y):
     y = y ^ (y >> 18)
     return y
 
+
+def distemper(y):
+    pass
+
+
 class mt:
     def __init__(self, seed=0):
         self.index = 0
