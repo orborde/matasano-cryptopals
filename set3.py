@@ -452,7 +452,8 @@ def run_p19():
     # Start decrypting!
     for m in P19_CIPHERTEXTS:
         plaintext = xorvec(key[:len(m)], m)
-        print(m, '==>', plaintext)
+        #print(m, '==>', plaintext)
+        print(plaintext)
 
 """
 
