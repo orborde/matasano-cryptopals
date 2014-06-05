@@ -73,7 +73,8 @@ block, whether it's padded or not.
 import os
 import random
 
-from set1 import b2b64, b642b, crack_xorchar, grouper, xorvec
+from set1 import b2b64, b642b, crack_xorchar, english_letters_metric
+from set1 import grouper, xorvec
 from set2 import *
 
 P17_PLAINTEXTS = list(map(b642b, [
@@ -445,7 +446,7 @@ def run_p19():
                 continue
             message.append(m[i])
         messages.append(message)
-        k, t = crack_xorchar(message)[0]
+        k, t = crack_xorchar(message, metric=english_letters_metric)[0]
         key.append(k)
 
     # Start decrypting!
