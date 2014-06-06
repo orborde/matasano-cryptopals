@@ -74,7 +74,7 @@ import os
 import random
 
 from set1 import b2b64, b642b, crack_xorchar, english_letters_metric
-from set1 import grouper, xorvec
+from set1 import grouper, is_printable, xorvec
 from set2 import *
 
 P17_PLAINTEXTS = list(map(b642b, [
@@ -432,13 +432,18 @@ suboptimal.
 
 # OK, you know what? Doing that decipherment manually sounds like a PAAAAIN.
 
+def printable_metric(b):
+    return sum(1 for c in b if is_printable([c]))
+
 def run_p19():
+    cx_metric = english_letters_metric
+
     # Put all the first (second, third, etc.) bytes of the ciphertexts
     # togther into a single "message" that we'll run XOR-cipher
     # cracking on. Just skip ciphertexts that are too short to
     # contribute a byte to the i'th message.
     messages = []
-    key = bytearray()
+    decrypts = []
     for i in range(max(len(m) for m in P19_CIPHERTEXTS)):
         message = bytearray()
         for m in P19_CIPHERTEXTS:
@@ -446,8 +451,30 @@ def run_p19():
                 continue
             message.append(m[i])
         messages.append(message)
-        k, t = crack_xorchar(message, metric=english_letters_metric)[0]
-        key.append(k)
+        decrypts.append(crack_xorchar(message, metric=cx_metric))
+
+    # For most key bytes, there are multiple keys that score the same
+    # on the english_letters_metric. Use a "maximize printable
+    # characters" metric to select which to use (as it turns out, this
+    # just renders it more readable without significantly reducing the
+    # work required to clean up the decryption by hand, but I'll take
+    # what I can get).
+    key = bytearray()
+    for i in range(len(decrypts)):
+        print(i)
+        decryptset = decrypts[i]
+
+        position = []
+        top = cx_metric(decryptset[0][1])
+        for k, t in decryptset:
+            if cx_metric(t) == top:
+                position.append((k, t))
+
+        position.sort(key=lambda t: printable_metric(t[1]))
+        position.reverse()
+        for k, t in position:
+            print(k, printable_metric(t), t)
+        key.append(position[0][0])
 
     # Start decrypting!
     for m in P19_CIPHERTEXTS:
