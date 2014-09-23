@@ -430,12 +430,14 @@ suboptimal.
 
 """
 
-# OK, you know what? Doing that decipherment manually sounds like a PAAAAIN.
+# OK, you know what? Doing that decipherment manually sounds like a PAAAAIN. I
+# did a hybrid approach: I ran the code below, then manually corrected the
+# output plaintext and printed THAT.
 
 def printable_metric(b):
     return sum(1 for c in b if is_printable([c]))
 
-def run_p19():
+def run_p19_internal():
     cx_metric = english_letters_metric
 
     # Put all the first (second, third, etc.) bytes of the ciphertexts
@@ -481,6 +483,96 @@ def run_p19():
         plaintext = xorvec(key[:len(m)], m)
         #print(m, '==>', plaintext)
         print(plaintext)
+
+# For the record, the above outputs the following:
+# b'I have met them at close of!day'
+# b'Coming with vivid faces'
+# b'From counter or desk among frey'
+# b'Eighteenth-century houses.'
+# b'I have passed with a nod of!the!ites'
+# b'Or polite meaningless words-'
+# b'Or have lingered awhile and!saie'
+# b'Polite meaningless words,'
+# b'And thought before I had dooe'
+# b'Of a mocking tale or a gibe'
+# b'To please a companion'
+# b'Around the fire at the club-'
+# b'Being certain that they and!I'
+# b'But lived where motley is wnrn:'
+# b'All changed, changed utterlx:'
+# b'A terrible beauty is born.'
+# b"That woman's days were spenu"
+# b'In ignorant good will,'
+# b'Her nights in argument'
+# b'Until her voice grew shrill/'
+# b'What voice more sweet than iers'
+# b'When young and beautiful,'
+# b'She rode to harriers?'
+# b'This man had kept a school'
+# b'And rode our winged horse.'
+# b'This other his helper and fsiene'
+# b'Was coming into his force;'
+# b'He might have won fame in tie eoe='
+# b'So sensitive his nature seeled,'
+# b'So daring and sweet his thotght/'
+# b'This other man I had dreamee'
+# b'A drunken, vain-glorious lott.'
+# b'He had done most bitter wroog'
+# b'To some who are near my heast,'
+# b'Yet I number him in the sonf;'
+# b'He, too, has resigned his p`rt'
+# b'In the casual comedy;'
+# b'He, too, has been changed io hir!eqeEe'
+# b'Transformed utterly:'
+# b'A terrible beauty is born.'
+
+P19_FINAL_ANSWER = """
+I have met them at close of day
+Coming with vivid faces
+From counter or desk among grey
+Eighteenth-century houses.
+I have passed with a nod of the hees
+Or polite meaningless words,
+Or have lingered awhile and said
+Polite meaningless words,
+And thought before I had done
+Of a mocking tale or a gibe
+To please a companion
+Around the fire at the club,
+Being certain that they and I
+But lived where motley is worn:
+All changed, changed utterly:
+A terrible beauty is born.
+That woman's days were spent
+In ignorant good will,
+Her nights in argument
+Until her voice grew shrill.
+What voice more sweet than hers
+When young and beautiful,
+She rode to harriers?
+This man had kept a school
+And rode our winged horse.
+This other his helper and friend
+Was coming into his force;
+He might have won fame in the end,
+So sensitive his nature seemed,
+So daring and sweet his thought.
+This other man I had dreamed
+A drunken, vain-glorious lost.
+He had done most bitter wrong
+To some who are near my heart,
+Yet I number him in the song;
+He, too, has resigned his part
+In the casual comedy;
+He, too, has been changed in his tqeEe
+Transformed utterly:
+A terrible beauty is born.
+"""
+
+def run_p19():
+    print("Problem 19")
+    print("!! The following output is faked up; I ran run_p19_internal and "
+          "manually cleaned up the output to what you see below.")
 
 """
 
