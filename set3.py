@@ -430,14 +430,14 @@ suboptimal.
 
 """
 
-# OK, you know what? Doing that decipherment manually sounds like a PAAAAIN. I
-# did a hybrid approach: I ran the code below, then manually corrected the
-# output plaintext and printed THAT.
+# OK, you know what? Doing that decipherment manually sounds like a
+# PAAAAIN. I did a hybrid approach: I used a program to do the bulk of
+# the cracking, then cleaned it up into a final plaintext by hand.
 
 def printable_metric(b):
     return sum(1 for c in b if is_printable([c]))
 
-def run_p19_internal():
+def crack_constant_ctr_nonce(ciphertexts):
     cx_metric = english_letters_metric
 
     # Put all the first (second, third, etc.) bytes of the ciphertexts
@@ -446,9 +446,9 @@ def run_p19_internal():
     # contribute a byte to the i'th message.
     messages = []
     decrypts = []
-    for i in range(max(len(m) for m in P19_CIPHERTEXTS)):
+    for i in range(max(len(m) for m in ciphertexts)):
         message = bytearray()
-        for m in P19_CIPHERTEXTS:
+        for m in ciphertexts:
             if i >= len(m):
                 continue
             message.append(m[i])
@@ -463,7 +463,7 @@ def run_p19_internal():
     # what I can get).
     key = bytearray()
     for i in range(len(decrypts)):
-        print(i)
+        # print(i)
         decryptset = decrypts[i]
 
         position = []
@@ -474,57 +474,17 @@ def run_p19_internal():
 
         position.sort(key=lambda t: printable_metric(t[1]))
         position.reverse()
-        for k, t in position:
-            print(k, printable_metric(t), t)
+        # for k, t in position:
+        #     print(k, printable_metric(t), t)
         key.append(position[0][0])
 
     # Start decrypting!
-    for m in P19_CIPHERTEXTS:
+    ret = []
+    for m in ciphertexts:
         plaintext = xorvec(key[:len(m)], m)
         #print(m, '==>', plaintext)
-        print(plaintext)
-
-# For the record, the above outputs the following:
-# b'I have met them at close of!day'
-# b'Coming with vivid faces'
-# b'From counter or desk among frey'
-# b'Eighteenth-century houses.'
-# b'I have passed with a nod of!the!ites'
-# b'Or polite meaningless words-'
-# b'Or have lingered awhile and!saie'
-# b'Polite meaningless words,'
-# b'And thought before I had dooe'
-# b'Of a mocking tale or a gibe'
-# b'To please a companion'
-# b'Around the fire at the club-'
-# b'Being certain that they and!I'
-# b'But lived where motley is wnrn:'
-# b'All changed, changed utterlx:'
-# b'A terrible beauty is born.'
-# b"That woman's days were spenu"
-# b'In ignorant good will,'
-# b'Her nights in argument'
-# b'Until her voice grew shrill/'
-# b'What voice more sweet than iers'
-# b'When young and beautiful,'
-# b'She rode to harriers?'
-# b'This man had kept a school'
-# b'And rode our winged horse.'
-# b'This other his helper and fsiene'
-# b'Was coming into his force;'
-# b'He might have won fame in tie eoe='
-# b'So sensitive his nature seeled,'
-# b'So daring and sweet his thotght/'
-# b'This other man I had dreamee'
-# b'A drunken, vain-glorious lott.'
-# b'He had done most bitter wroog'
-# b'To some who are near my heast,'
-# b'Yet I number him in the sonf;'
-# b'He, too, has resigned his p`rt'
-# b'In the casual comedy;'
-# b'He, too, has been changed io hir!eqeEe'
-# b'Transformed utterly:'
-# b'A terrible beauty is born.'
+        ret.append(plaintext)
+    return ret
 
 P19_FINAL_ANSWER = """
 I have met them at close of day
@@ -576,9 +536,14 @@ A terrible beauty is born.
 
 def run_p19():
     print("Problem 19")
-    print("!! The following output is faked up; I ran run_p19_internal and "
-          "manually cleaned up the output to what you see below. Read the "
-          "source code here for more information. !!")
+    plaintexts = crack_constant_ctr_nonce(P19_CIPHERTEXTS)
+    print("Raw decoder output:")
+    for m in plaintexts:
+        print(m)
+    print()
+    print()
+
+    print("Manually cleaned output:")
     print(P19_FINAL_ANSWER)
     print()
 
