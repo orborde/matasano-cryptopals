@@ -531,7 +531,7 @@ I have met them at close of day
 Coming with vivid faces
 From counter or desk among grey
 Eighteenth-century houses.
-I have passed with a nod of the hees
+I have passed with a nod of the head
 Or polite meaningless words,
 Or have lingered awhile and said
 Polite meaningless words,
@@ -564,15 +564,24 @@ To some who are near my heart,
 Yet I number him in the song;
 He, too, has resigned his part
 In the casual comedy;
-He, too, has been changed in his tqeEe
+He, too, has been changed in his turn,
 Transformed utterly:
 A terrible beauty is born.
 """
 
+# "turn," in the third line from the end is a guess; there doesn't seem to be
+# enough information in the ciphertexts to deduce it fully via statistical
+# analysis (only the first 3 letters). Please email me back and tell me how
+# wrong I am if this is not the case :)
+
 def run_p19():
     print("Problem 19")
     print("!! The following output is faked up; I ran run_p19_internal and "
-          "manually cleaned up the output to what you see below.")
+          "manually cleaned up the output to what you see below. Read the "
+          "source code here for more information. !!")
+    print(P19_FINAL_ANSWER)
+    print()
+
 
 """
 
