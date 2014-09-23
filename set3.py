@@ -586,6 +586,7 @@ def run_p20():
     plaintexts = crack_constant_ctr_nonce(P20_CIPHERTEXTS)
     for m in plaintexts:
         print(m)
+    print()
 
 """
 
@@ -658,6 +659,7 @@ def run_p22():
         print('Correctly deduced the seed time')
     else:
         print('Got the wrong seed time :(')
+    print()
 
 
 """
@@ -729,3 +731,4 @@ if __name__== '__main__':
     #run_p18()
     #run_p19()
     run_p20()
+    #run_p22()
