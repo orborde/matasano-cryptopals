@@ -575,6 +575,20 @@ work).
 Solve the resulting concatenation of ciphertexts as if for repeating-
 key XOR, with a key size of the length of the ciphertext you XOR'd.
 
+"""
+
+P20_CIPHERTEXTS = open('set3p20.txt', 'r').read()
+P20_CIPHERTEXTS = [b642b(line.strip()) for line in
+                   P20_CIPHERTEXTS.strip().splitlines()]
+
+def run_p20():
+    print("Problem 20")
+    plaintexts = crack_constant_ctr_nonce(P20_CIPHERTEXTS)
+    for m in plaintexts:
+        print(m)
+
+"""
+
 // ------------------------------------------------------------
 
 21. Implement the MT19937 Mersenne Twister RNG
@@ -713,4 +727,5 @@ if __name__== '__main__':
         sys.exit(1)
     #run_p17()
     #run_p18()
-    run_p19()
+    #run_p19()
+    run_p20()
