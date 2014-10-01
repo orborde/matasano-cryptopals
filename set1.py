@@ -324,6 +324,18 @@ def english_letters_metric(vec):
         sum(ENGLISH_LETTER_FREQUENCIES[bytes([c])] for c in valid_letters))
     return score
 
+def english_letters_multinomial(vec):
+    """Score a candidate plaintext by evaluating how likely it is, assuming a
+    multinomial distribution of English letters in it.
+
+    This approach has a major limitation: in general, shorter strings will be
+    more likely than longer strings (I think), and the model used has no term to
+    account for whitespace/punctuation. Without such a term, this model will
+    tend to score texts with fewer letters higher than texts with more letters,
+    just by dint of them being shorter.
+    """
+    pass
+
 
 # Python's string.printable with some of the obviously unprintable
 # stuff deleted (I think this is as weird a comment as you do.)
