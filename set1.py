@@ -325,7 +325,7 @@ def english_letters_metric(vec):
     return score
 
 
-from fractions import Fraction
+#from fractions import Fraction
 import math
 
 def load_english_bytes_frequencies():
@@ -336,7 +336,9 @@ def load_english_bytes_frequencies():
         c, ct = map(int, line.split())
         counts[c] = ct
 
-    # TODO: Try floating point if this is too slow.
+    # TODO: Try fractions if this doesn't work. Unfortunately, we'll probably
+    # have to work around http://bugs.python.org/issue21136 to make it work
+    # properly.
     total = sum(counts)
     frequencies = [Fraction(ct, total) for ct in counts]
     return frequencies
