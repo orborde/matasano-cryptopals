@@ -422,6 +422,7 @@ INPUT_4 = [l.strip() for l in open('set1p4.txt') if l.strip()]
 def run_p4():
     print()
     print('Problem 4')
+    # Metric score, original line, decryption key, decrypted text
     possibilities = []
     for i in range(len(INPUT_4)):
         ctext = INPUT_4[i]
