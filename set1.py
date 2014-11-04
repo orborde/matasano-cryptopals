@@ -344,10 +344,17 @@ def load_english_bytes_frequencies():
     return frequencies
 ENGLISH_BYTE_FREQUENCIES = load_english_bytes_frequencies()
 
-def english_bytes_multinomial(vec):
+def english_bytes_metric(vec):
     """Score a candidate plaintext by evaluating how likely it is, using a
     multinomial distribution model of bytes that happen to comprise English
     text.
+
+    Well, sort of. It turns out that, in order to compare candidate decryptions
+    of sets of bytes encrypted by a 1:1 mapping between input and output bytes
+    (e.g. XOR against a key byte), it's kind of a waste of time to evaluate the
+    mess o' factorials every time. So you can simply compare the
+    product-of-probabilities, which is easily optimized to a bunch of muls and
+    adds by working in log-probabilities.
     """
     pass
 
