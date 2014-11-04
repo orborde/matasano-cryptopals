@@ -363,11 +363,16 @@ def english_bytes_metric(vec):
     of sets of bytes encrypted by a 1:1 mapping between input and output bytes
     (e.g. XOR against a key byte), it's kind of a waste of time to evaluate the
     mess o' factorials every time. So you can simply compare the
-    product-of-probabilities, which is easily optimized to a bunch of muls and
-    adds by working in log-probabilities.
+    product-of-probabilities. You could then optimize this to a bunch of muls
+    and adds by working in log-probabilities (and people commonly do), but this
+    does not, because I don't want to deal with characters of frequency 0.
     """
-    pass
-
+    p = 1
+    # Instead of computing a histogram and raising things to powers, go straight
+    # through and multiply byte-by-byte.
+    for c in vec:
+        p *= ENGLISH_BYTE_FREQUENCIES[c]
+    return p
 
 # Python's string.printable with some of the obviously unprintable
 # stuff deleted (I think this is as weird a comment as you do.)
