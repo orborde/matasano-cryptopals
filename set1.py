@@ -324,9 +324,18 @@ def english_letters_metric(vec):
         sum(ENGLISH_LETTER_FREQUENCIES[bytes([c])] for c in valid_letters))
     return score
 
+import math
+
+ENGLISH_LETTERS_LOG_FREQUENCIES = dict(
+    (letter.encode(), math.log(float(val)/100))
+    for letter,val in ENGLISH_LETTER_FREQUENCIES)
+def english_letters_log_metric(vec):
+    """ TODO: Explain me. Multinomial distribution, logspace, yadda yadda. """
+    return sum(vec.count(letter) * val
+               for letter,val in ENGLISH_LETTERS_LOG_FREQUENCIES.items())
+
 
 #from fractions import Fraction
-import math
 
 def load_english_bytes_frequencies():
     # Load the bytes histogram model and preprocess it so that it's useful for
