@@ -340,7 +340,7 @@ def load_english_bytes_frequencies():
     # have to work around http://bugs.python.org/issue21136 to make it work
     # properly.
     total = sum(counts)
-    frequencies = [Fraction(ct, total) for ct in counts]
+    frequencies = [float(ct)/ total for ct in counts]
     return frequencies
 ENGLISH_BYTE_FREQUENCIES = load_english_bytes_frequencies()
 
