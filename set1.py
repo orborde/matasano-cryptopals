@@ -313,7 +313,7 @@ ENGLISH_LETTER_FREQUENCIES = dict(
 
 def english_letters_metric(vec):
     """Score a candidate plaintext by the sum of the frequencies of
-    its letters, divided by the total letters.
+    its letters.
     """
     vec = vec.upper()
     valid_letters = bytearray(
