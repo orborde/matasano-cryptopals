@@ -327,7 +327,7 @@ def english_letters_metric(vec):
 import math
 
 ENGLISH_LETTERS_LOG_FREQUENCIES = dict(
-    (letter, math.log(float(val)/100))
+    (letter, math.log(val))
     for letter,val in ENGLISH_LETTER_FREQUENCIES.items())
 def english_letters_log_metric(vec):
     """ TODO: Explain me. Multinomial distribution, logspace, yadda yadda. """
