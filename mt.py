@@ -3,9 +3,10 @@
 # implementation on Wikipedia.
 
 # Some quick Googling around didn't turn up a Python fixed-width
-# integer type, so I have, uh, this instead.
+# integer type, so I have, uh, this stuff instead.
+UINT_MAX = (2 ** 32) - 1
 def uint32(i):
-    return i % (2**32)
+    return i & UINT_MAX
 
 
 def temper(y):
@@ -14,6 +15,50 @@ def temper(y):
     y = y ^ ((y << 15) & 0xefc60000)
     y = y ^ (y >> 18)
     return y
+
+
+def getbit(n, b):
+    """
+    >>> getbit(10, 0)
+    0
+    >>> getbit(11, 0)
+    1
+    >>> getbit(10, 1)
+    1
+    >>> getbit(10, 2)
+    0
+    >>> getbit(10, 3)
+    1
+    >>> getbit(10, 4)
+    0
+    >>> getbit(10, 5)
+    0
+    """
+    mask = 1 << b
+    return (n & mask) >> b
+
+def setbit(n, b, v):
+    """
+    >>> setbit(10, 0, 1)
+    11
+    >>> setbit(10, 0, 0)
+    10
+    >>> setbit(11, 0, 0)
+    10
+    >>> setbit(0, 0, 0)
+    0
+    >>> setbit(0, 3, 1)
+    8
+    """
+    assert v in [0, 1]
+    mask = 1 << b
+    unset_mask = UINT_MAX ^ mask
+
+    n = n & unset_mask
+    if v:
+        n = n | mask
+    return n
+
 
 
 def distemper(y):
