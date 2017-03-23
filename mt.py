@@ -95,6 +95,11 @@ class mt:
         self.index += 1
         return temper(y)
 
+import doctest
+def load_tests(loader, tests, ignore):
+    tests.addTests(doctest.DocTestSuite())
+    return tests
+
 if __name__ == '__main__':
     import doctest
     fails, _ = doctest.testmod()
