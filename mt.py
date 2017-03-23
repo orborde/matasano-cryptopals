@@ -100,6 +100,18 @@ def load_tests(loader, tests, ignore):
     tests.addTests(doctest.DocTestSuite())
     return tests
 
+import unittest
+class MtGolden(unittest.TestCase):
+    def test_vs_golden(self):
+        expected_values = []
+        with open('mt-seed12345_1000.txt', 'r') as f:
+            for l in f:
+                expected_values.append(int(l))
+        m = mt(12345)
+        actual_values = [m.extract() for _ in expected_values]
+        self.assertEqual(actual_values, expected_values)
+
+
 if __name__ == '__main__':
     import doctest
     fails, _ = doctest.testmod()
