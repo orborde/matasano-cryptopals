@@ -76,7 +76,7 @@ class InvertOps(unittest.TestCase):
         r = random.Random()
         r.seed(1337)
 
-        for _ in xrange(1000):
+        for _ in xrange(100):
             for shift in xrange(1, 31):
                 y = r.randint(0, UINT_MAX)
                 out = y ^ (y >> shift)
