@@ -19,20 +19,10 @@ def temper(y):
 
 def getbit(n, b):
     """
-    >>> getbit(10, 0)
-    0
     >>> getbit(11, 0)
     1
-    >>> getbit(10, 1)
-    1
-    >>> getbit(10, 2)
-    0
-    >>> getbit(10, 3)
-    1
-    >>> getbit(10, 4)
-    0
-    >>> getbit(10, 5)
-    0
+    >>> [getbit(10, i) for i in range(6)]
+    [0, 1, 0, 1, 0, 0]
     """
     mask = 1 << b
     return (n & mask) >> b
