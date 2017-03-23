@@ -723,12 +723,35 @@ def run_p23():
             return
     print('...you did it! :D')
 
-"""
-How would you modify MT19937 to make this attack hard? What would
+"""Q: How would you modify MT19937 to make this attack hard? What would
 happen if you subjected each tempered output to a cryptographic hash?
+
+A: If you hashed the tempered output, it would no longer be possible
+to invert the tempering function and directly recover the internal
+state word. However, you can't just hash a single 32-bit extract()
+result at a time - the input space to the hash is then only 2^32,
+which is well within the range of "compute all possible hashes and
+build a lookup table to invert them".
+
+From what I've read elsewhere, you can solve this problem by
+concatenating multiple extract() results together before hashing. Say,
+4 of them? That gives you 128 bits of input space, and assuming your
+hash output is at least 128 bits, now it's really tough to find the
+preimage. If you want, you can even slice the 128-bit hash output back
+up into 32-bit pieces so that this slots neatly into your existing
+Mersenne-Twister-using code.
+
+Of course, it's not all sunshine and roses - you'll want to prove that
+your hash function isn't discarding bits of entropy!
+
+Perhaps another way you could go at this would be to pass the
+extract() result through a block cipher. Pick a key and keep it
+secret, and you can now use a 32-bit blocksize cipher on each
+extract() result and vend it immediately -- no batching required. Of
+course, I just kinda thought this one up offhand, so undoubtedly it's
+broken in some exciting way...
 """
 
-# TODO
 
 """
 // ------------------------------------------------------------
