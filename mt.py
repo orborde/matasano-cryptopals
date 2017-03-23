@@ -60,10 +60,10 @@ def inv_shr_xor(out, shift):
     """
     ans = 0
     # The highest (leftmost) `shift` bits are from the original.
-    for bit in xrange(31, 31-shift, -1):
+    for bit in range(31, 31-shift, -1):
         ans = setbit(ans, bit, getbit(out, bit))
     # The rest can be deduced working left-to-right.
-    for bit in xrange(31-shift, 0 - 1, -1):
+    for bit in range(31-shift, 0 - 1, -1):
         bv = getbit(out, bit) ^ getbit(ans, bit+shift)
         ans = setbit(ans, bit, bv)
     return ans
@@ -79,10 +79,10 @@ def inv_shl_and_xor(out, shift, const):
     """
     ans = 0
     # The lowest `shift` bits are unchanged.
-    for bit in xrange(shift):
+    for bit in range(shift):
         ans = setbit(ans, bit, getbit(out, bit))
     # Work up the rest of the bits.
-    for bit in xrange(shift, 31+1):
+    for bit in range(shift, 31+1):
         bv = getbit(out, bit) ^ (getbit(ans, bit-shift) &
                                  getbit(const, bit))
         ans = setbit(ans, bit, bv)
@@ -108,8 +108,8 @@ class InvertOps(unittest.TestCase):
         r = random.Random()
         r.seed(1337)
 
-        for _ in xrange(100):
-            for shift in xrange(1, 31):
+        for _ in range(100):
+            for shift in range(1, 31):
                 y = r.randint(0, UINT_MAX)
                 out = y ^ (y >> shift)
                 cy = inv_shr_xor(out, shift)
@@ -119,8 +119,8 @@ class InvertOps(unittest.TestCase):
         r = random.Random()
         r.seed(1337)
 
-        for cycle in xrange(100):
-            for shift in xrange(1, 31):
+        for cycle in range(100):
+            for shift in range(1, 31):
                 const = 0x9d2c5680
                 y = r.randint(0, UINT_MAX)
                 out = y ^ ((y << shift) & const)
@@ -134,7 +134,7 @@ class InvertOps(unittest.TestCase):
         r = random.Random()
         r.seed(1337)
 
-        for cycle in xrange(10000):
+        for cycle in range(10000):
             y = r.randint(0, UINT_MAX)
             ty = temper(y)
             dty = distemper(ty)
