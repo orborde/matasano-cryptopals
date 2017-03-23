@@ -60,6 +60,41 @@ def setbit(n, b, v):
     return n
 
 
+def inv_shr_xor(out, shift):
+    """Solves out = y ^ (y >> shift) for y.
+
+    This could be done a great deal faster, probably.
+
+    >>> inv_shr_xor(1337 ^ (1337 >> 11), 11)
+    1337
+    """
+    ans = 0
+    # The highest (leftmost) `shift` bits are from the original.
+    for bit in xrange(31, 31-shift, -1):
+        ans = setbit(ans, bit, getbit(out, bit))
+    # The rest can be deduced working left-to-right.
+    for bit in xrange(31-shift, 0 - 1, -1):
+        bv = getbit(out, bit) ^ getbit(ans, bit+shift)
+        ans = setbit(ans, bit, bv)
+    return ans
+
+
+import random
+import unittest
+class InvertOps(unittest.TestCase):
+    def test_inv_shr_xor_random(self):
+        r = random.Random()
+        r.seed(1337)
+
+        for _ in xrange(1000):
+            for shift in xrange(1, 31):
+                y = r.randint(0, UINT_MAX)
+                out = y ^ (y >> shift)
+                cy = inv_shr_xor(out, shift)
+                self.assertEquals(cy, y)
+
+
+
 
 def distemper(y):
     pass
@@ -100,7 +135,6 @@ def load_tests(loader, tests, ignore):
     tests.addTests(doctest.DocTestSuite())
     return tests
 
-import unittest
 class MtGolden(unittest.TestCase):
     def test_vs_golden(self):
         expected_values = []
