@@ -88,6 +88,19 @@ def inv_shl_and_xor(out, shift, const):
         ans = setbit(ans, bit, bv)
     return ans
 
+def distemper(y):
+    #y = y ^ (y >> 18)
+    y = inv_shr_xor(y, 18)
+    #y = y ^ ((y << 15) & 0xefc60000)
+    y = inv_shl_and_xor(y, 15, 0xefc60000)
+    #y = y ^ ((y << 7) & 0x9d2c5680)
+    y = inv_shl_and_xor(y, 7, 0x9d2c5680)
+    #y = y ^ (y >> 11)
+    y = inv_shr_xor(y, 11)
+    # !!!!!
+    return y
+
+
 import random
 import unittest
 class InvertOps(unittest.TestCase):
@@ -117,10 +130,15 @@ class InvertOps(unittest.TestCase):
                     'cycle={} shift={}\nexp={:b},\ngot={:b}'.format(
                         cycle, shift, y, cy))
 
+    def test_temper_distemper(self):
+        r = random.Random()
+        r.seed(1337)
 
-
-def distemper(y):
-    pass
+        for cycle in xrange(10000):
+            y = r.randint(0, UINT_MAX)
+            ty = temper(y)
+            dty = distemper(ty)
+            self.assertEquals(dty, y)
 
 
 class mt:
