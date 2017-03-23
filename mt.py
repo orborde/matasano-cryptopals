@@ -69,6 +69,25 @@ def inv_shr_xor(out, shift):
     return ans
 
 
+def inv_shl_and_xor(out, shift, const):
+    """Solves out = y ^ ((y << shift) & const) for y.
+
+    This could be done a great deal faster, probably.
+
+    >>> inv_shl_and_xor(1337 ^ ((1337 << 7) & 0x9d2c5680), 7, 0x9d2c5680)
+    1337
+    """
+    ans = 0
+    # The lowest `shift` bits are unchanged.
+    for bit in xrange(shift):
+        ans = setbit(ans, bit, getbit(out, bit))
+    # Work up the rest of the bits.
+    for bit in xrange(shift+1, 31+1):
+        bv = getbit(out, bit) ^ (getbit(ans, bit-shift) &
+                                 getbit(const, bit))
+        ans = setbit(ans, bit, bv)
+    return ans
+
 import random
 import unittest
 class InvertOps(unittest.TestCase):
@@ -83,6 +102,20 @@ class InvertOps(unittest.TestCase):
                 cy = inv_shr_xor(out, shift)
                 self.assertEquals(cy, y)
 
+    def test_inv_shl_and_xor_random(self):
+        r = random.Random()
+        r.seed(1337)
+
+        for cycle in xrange(100):
+            for shift in xrange(1, 31):
+                const = 0x9d2c5680
+                y = r.randint(0, UINT_MAX)
+                out = y ^ ((y << shift) & const)
+                cy = inv_shl_and_xor(out, shift, const)
+                self.assertEquals(
+                    cy, y,
+                    'cycle={} shift={}\nexp={:b},\ngot={:b}'.format(
+                        cycle, shift, y, cy))
 
 
 
