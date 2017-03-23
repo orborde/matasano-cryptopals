@@ -694,10 +694,43 @@ generator, and splice that state into a new instance of the MT19937
 generator.
 
 The new "spliced" generator should predict the values of the original.
+"""
 
+import mt
+
+def clone_mt(secret_mt):
+    extracts = [secret_mt.extract() for _ in range(624)]
+    statevec = [mt.distemper(y) for y in extracts]
+    clone = mt.mt()
+    clone.MT = statevec
+    clone.index=624
+    return clone
+
+def run_p23():
+    print('Problem 23')
+    seed = itime()
+    print('Setting up a Mersenne Twister with seed=', seed)
+    secret_mt = mt.mt(seed=seed)
+    print('Tapping and cloning...')
+    clone = clone_mt(secret_mt)
+    CMP=10000
+    print('Comparing', CMP, 'outputs...')
+    for i in range(CMP):
+        s = secret_mt.extract()
+        c = clone.extract()
+        if s != c:
+            print('OH NO!', i, s, '!=', c)
+            return
+    print('...you did it! :D')
+
+"""
 How would you modify MT19937 to make this attack hard? What would
 happen if you subjected each tempered output to a cryptographic hash?
+"""
 
+# TODO
+
+"""
 // ------------------------------------------------------------
 
 24. Create the MT19937 Stream Cipher And Break It
@@ -730,5 +763,6 @@ if __name__== '__main__':
     #run_p17()
     #run_p18()
     #run_p19()
-    run_p20()
+    #run_p20()
+    run_p23()
     #run_p22()
