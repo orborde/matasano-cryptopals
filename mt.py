@@ -82,7 +82,7 @@ def inv_shl_and_xor(out, shift, const):
     for bit in xrange(shift):
         ans = setbit(ans, bit, getbit(out, bit))
     # Work up the rest of the bits.
-    for bit in xrange(shift+1, 31+1):
+    for bit in xrange(shift, 31+1):
         bv = getbit(out, bit) ^ (getbit(ans, bit-shift) &
                                  getbit(const, bit))
         ans = setbit(ans, bit, bv)
