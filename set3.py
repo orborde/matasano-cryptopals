@@ -824,9 +824,39 @@ def p24_p1():
     assert cracked_key == key
     print('Successfully recovered the correct key!')
 
+def strmeq(strm, tok):
+    for sb, tb in zip(strm, tok):
+        if sb != tb:
+            return False
+    return True
+
+def find_time_of_token(token):
+    now = itime()
+    t = now
+    while True:
+        strm = mtstream(t)
+        if strmeq(strm, token):
+            return t
+        t -= 1
+
+def make_token():
+    now = itime()
+    strm = mtstream(now)
+    return now, bytes(strm.__next__() for _ in range(20))
+
+def p24_p2():
+    print('Part two - password reset token')
+    token_time, token = make_token()
+    print('Generated token', token, 'for', token_time)
+    found_time = find_time_of_token(token)
+    print('Detected token time as', found_time)
+    assert found_time == token_time
+    print('Yep, got it!')
+
 def run_p24():
     print('Problem 24')
     p24_p1()
+    p24_p2()
 
 if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
