@@ -823,6 +823,7 @@ def p24_p1():
     assert cracked_msg == msg
     assert cracked_key == key
     print('Successfully recovered the correct key!')
+    print()
 
 def strmeq(strm, tok):
     for sb, tb in zip(strm, tok):
@@ -852,11 +853,13 @@ def p24_p2():
     print('Detected token time as', found_time)
     assert found_time == token_time
     print('Yep, got it!')
+    print()
 
 def run_p24():
     print('Problem 24')
     p24_p1()
     p24_p2()
+    print()
 
 if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
