@@ -603,7 +603,7 @@ yourself.
 """
 
 # See mt.py
-from mt import mt
+import mt
 
 """
 
@@ -641,7 +641,7 @@ def run_p22():
     # Simulating the passage of time is great!
     print('Seeding the RNG')
     seed_time = itime() + random.randint(40, 1000)
-    m = mt(seed_time)
+    m = mt.mt(seed_time)
     print('Advancing time')
     the_now = seed_time + random.randint(40, 1000)
     print('Extract and crack!')
@@ -651,7 +651,7 @@ def run_p22():
     backup = 0
     while True:
         tt = the_now - backup
-        if output == mt(tt).extract():
+        if output == mt.mt(tt).extract():
             print('Found it!')
             break
         backup += 1
@@ -696,8 +696,6 @@ generator.
 
 The new "spliced" generator should predict the values of the original.
 """
-
-import mt
 
 def clone_mt(secret_mt):
     extracts = [secret_mt.extract() for _ in range(624)]
