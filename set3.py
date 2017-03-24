@@ -834,7 +834,7 @@ def strmeq(strm, tok):
 def find_time_of_token(token):
     now = itime()
     t = now
-    while True:
+    while t >= 0:
         strm = mtstream(t)
         if strmeq(strm, token):
             return t
