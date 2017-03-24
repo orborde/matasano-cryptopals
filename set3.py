@@ -780,6 +780,54 @@ the product of an MT19937 PRNG seeded with the current time.
 
 """
 
+def mtstream(seed):
+    m = mt.mt(seed=seed)
+    while True:
+        word = m.extract()
+        for _ in range(4):
+            byte = word & 0xFF
+            yield byte
+            word = word >> 8
+
+def mtcrypt(key, msg):
+    out = []
+    for sb, mb in zip(mtstream(key), msg):
+        out.append(sb ^ mb)
+    return bytes(out)
+
+def p24_p1_findseed(ciphertext, known_plaintext):
+    for key in range(2**16):
+        if key % 2000 == 0:
+            print('... trying keys from', key)
+        candidate = mtcrypt(key, ciphertext)
+        if known_plaintext in candidate:
+            return key
+    return None
+
+def p24_p1():
+    print('Part one - known plaintext + small seed')
+    prefixlen = random.randint(10,20)
+    known_plaintext = b'A' * 14
+    msg = bytes([random.randint(0,255) for _ in range(prefixlen)])
+    msg += known_plaintext
+    print('Secret message:', msg)
+    key = random.randint(0, 2**16 - 1)
+    print('Secret key:', key)
+    ciphertext = mtcrypt(key, msg)
+    print('Ciphertext', ciphertext)
+
+    cracked_key = p24_p1_findseed(ciphertext, known_plaintext)
+    print('Recovered key:', cracked_key)
+    cracked_msg = mtcrypt(cracked_key, ciphertext)
+    print('Cracked msg:', cracked_msg)
+    assert cracked_msg == msg
+    assert cracked_key == key
+    print('Successfully recovered the correct key!')
+
+def run_p24():
+    print('Problem 24')
+    p24_p1()
+
 if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
@@ -787,5 +835,6 @@ if __name__== '__main__':
     #run_p18()
     #run_p19()
     #run_p20()
-    run_p23()
     #run_p22()
+    #run_p23()
+    run_p24()
