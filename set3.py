@@ -217,6 +217,7 @@ def p17_test_oracle(ciphertext):
     return True
 
 def run_p17():
+    print('Problem 17')
     # Here's a stupid quick hack to make sure it's more-or-less working.
     assert(P17_TEST_PLAINTEXT ==
            padding_oracle_crack(p17_test_oracle, P17_TEST_CIPHERTEXT))
@@ -864,10 +865,10 @@ def run_p24():
 if __name__== '__main__':
     if (doctest.testmod()[0]) > 0:
         sys.exit(1)
-    #run_p17()
-    #run_p18()
-    #run_p19()
-    #run_p20()
-    #run_p22()
-    #run_p23()
+    run_p17()
+    run_p18()
+    run_p19()
+    run_p20()
+    run_p22()
+    run_p23()
     run_p24()
