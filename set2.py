@@ -116,56 +116,14 @@ SUBMARINE" with an IV of all ASCII 0 (\x00\x00\x00 &c)
 
 """
 
-from Crypto.Cipher import AES
-
-# We're all about the AES128 here!
-KEYSIZE=16
-BLOCKSIZE=16
-
-def AES128_encrypt(plaintext, key):
-    assert(len(key) == KEYSIZE)
-    aes = AES.new(key, AES.MODE_ECB)
-    ciphertext = aes.encrypt(plaintext)
-    return ciphertext
-
-def AES128_decrypt(ciphertext, key):
-    assert(len(key) == KEYSIZE)
-    aes = AES.new(key, AES.MODE_ECB)
-    plaintext = aes.decrypt(ciphertext)
-    return plaintext
-
-def AES128_CBC_encrypt(plaintext, key, iv=None):
-    if iv is None:
-        iv = os.urandom(BLOCKSIZE)
-    last_cipherblock = iv
-    ciphertext = bytearray(iv)
-    for block in util.grouper(BLOCKSIZE, plaintext):
-        block = bytes(block)
-        encrypt = AES128_encrypt(
-            xorvec(last_cipherblock, block), key)
-        ciphertext.extend(encrypt)
-        last_cipherblock = encrypt
-    return ciphertext
-
-def AES128_CBC_decrypt(ciphertext, key):
-    blocks = list(util.grouper(BLOCKSIZE, ciphertext))
-    # Initialization vector
-    last_cipherblock = blocks[0]
-    plaintext = bytearray()
-    for block in blocks[1:]:
-        block = bytes(block)
-        decrypt = AES128_decrypt(block, key)
-        decrypt = xorvec(last_cipherblock, decrypt)
-        plaintext.extend(decrypt)
-        last_cipherblock = block
-    return plaintext
+import AES128
 
 def run_p10():
     print('Problem 10')
     INPUT = b642b(open('set2p10.txt').read())
     KEY = b'YELLOW SUBMARINE'
-    IV = bytes(BLOCKSIZE)
-    output = AES128_CBC_decrypt(IV + INPUT, KEY)
+    IV = bytes(AES128.BLOCKSIZE)
+    output = AES128.AES128_CBC_decrypt(IV + INPUT, KEY)
     print('First 3 lines of output:')
     for line in output.splitlines()[:3]:
         print(line.decode())
@@ -202,35 +160,35 @@ Now detect the block cipher mode the function is using each time.
 
 def p11_oracle(data):
     # Generate a random key
-    key = os.urandom(KEYSIZE)
+    key = os.urandom(AES128.KEYSIZE)
     # Munge the data
     data = (os.urandom(random.randint(5, 10)) +
             data +
             os.urandom(random.randint(5, 10)))
-    encryption = random.choice([AES128_encrypt, AES128_CBC_encrypt])
-    return encryption(pkcs7pad(data, BLOCKSIZE), key), encryption
+    encryption = random.choice([AES128.AES128_encrypt, AES128.AES128_CBC_encrypt])
+    return encryption(pkcs7pad(data, AES128.BLOCKSIZE), key), encryption
 
 def is_ecb(ciphertext):
     # It is overwhelmingly likely that CBC will scramble things enough
     # that there will be no identical blocks. Meanwhile, ECB will have
     # many duplicate blocks because I'm passing in all zeros (see
     # below).
-    blocks = list(util.grouper(BLOCKSIZE, ciphertext))
+    blocks = list(util.grouper(AES128.BLOCKSIZE, ciphertext))
     return (len(set(blocks)) != len(blocks))
 
 def run_p11():
     print('Problem 11')
     # Just throw in a very long zero vector
-    data = bytes(BLOCKSIZE * 100)
+    data = bytes(AES128.BLOCKSIZE * 100)
     runs = 0
     correct = 0
     for i in range(1000):
         runs += 1
         ciphertext, encryption = p11_oracle(data)
         if is_ecb(ciphertext):
-            guess = AES128_encrypt
+            guess = AES128.AES128_encrypt
         else:
-            guess = AES128_CBC_encrypt
+            guess = AES128.AES128_CBC_encrypt
         if encryption is guess:
             correct += 1
 
@@ -301,10 +259,10 @@ SECRET_SUFFIX_12 = b642b("""
   YnkK
 """)
 
-KEY_12 = os.urandom(KEYSIZE)
+KEY_12 = os.urandom(AES128.KEYSIZE)
 
 def secret_suffix_oracle(secret_suffix, data):
-    return AES128_encrypt(pkcs7pad(data + secret_suffix, BLOCKSIZE),
+    return AES128.AES128_encrypt(pkcs7pad(data + secret_suffix, AES128.BLOCKSIZE),
                           KEY_12)
 
 def p12_oracle(data):
@@ -496,12 +454,12 @@ def profile_for(email):
          'uid' : '10'}
     return profile_encode(d)
 
-P13_KEY = os.urandom(KEYSIZE)
+P13_KEY = os.urandom(AES128.KEYSIZE)
 def profile_cookie(email):
-    return AES128_encrypt(pkcs7pad(profile_for(email).encode(), BLOCKSIZE), P13_KEY)
+    return AES128.AES128_encrypt(pkcs7pad(profile_for(email).encode(), AES128.BLOCKSIZE), P13_KEY)
 
 def profile_cookie_decode(cookie):
-    return profile_decode(pkcs7unpad(AES128_decrypt(cookie, P13_KEY)).decode())
+    return profile_decode(pkcs7unpad(AES128.AES128_decrypt(cookie, P13_KEY)).decode())
 
 def gen_admin_cookie():
     # 1. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... as the
@@ -515,10 +473,10 @@ def gen_admin_cookie():
     #    The idea here is to get that middle "admin" block, which, if
     #    it were to appear as the last block in a PKCS7 padded
     #    plaintext, would decode to the simple "admin"
-    admin_plaintext = pkcs7pad(b'admin', BLOCKSIZE)
-    right_email = ((BLOCKSIZE - len('email=')) * b'X') + admin_plaintext
+    admin_plaintext = pkcs7pad(b'admin', AES128.BLOCKSIZE)
+    right_email = ((AES128.BLOCKSIZE - len('email=')) * b'X') + admin_plaintext
     right_ciphertext = profile_cookie(right_email.decode())
-    right_block = right_ciphertext[BLOCKSIZE:(2*BLOCKSIZE)]
+    right_block = right_ciphertext[AES128.BLOCKSIZE:(2*AES128.BLOCKSIZE)]
 
     # 2. Create a plaintext using XXXXXX email inputs to get the
     #    ciphertext for the following:
@@ -527,9 +485,9 @@ def gen_admin_cookie():
     #
     #    Note that the left chunk will need to be two blocks, because
     #    the prefilled data is longer than a block (19 characters).
-    left_email = (2*BLOCKSIZE - len('email=') - len('&uid=10&role=')) * 'X'
+    left_email = (2*AES128.BLOCKSIZE - len('email=') - len('&uid=10&role=')) * 'X'
     left_ciphertext = profile_cookie(left_email)
-    left_block = left_ciphertext[:(2*BLOCKSIZE)]
+    left_block = left_ciphertext[:(2*AES128.BLOCKSIZE)]
 
     # 3. Paste the first block (2) and the second block of (1)
     #    together to produce a profile ciphertext. It will represent
@@ -586,8 +544,8 @@ def p14_oracle(data):
 
 def find_data_injection_block(oracle):
     # Figure out what block the beginning byte is in.
-    nul = list(util.grouper(BLOCKSIZE, oracle(b'')))
-    single = list(util.grouper(BLOCKSIZE, oracle(b'x')))
+    nul = list(util.grouper(AES128.BLOCKSIZE, oracle(b'')))
+    single = list(util.grouper(AES128.BLOCKSIZE, oracle(b'x')))
     # The first block that differs between the two contains the first
     # byte.
     for i in range(min(len(single), len(nul))):
@@ -602,7 +560,7 @@ def find_distance_to_block_edge(oracle, injection_block):
     def test_ct(i):
         # Generate a candidate injection block. Used later.
         data = b'x' * i
-        blocks = list(util.grouper(BLOCKSIZE, oracle(data)))
+        blocks = list(util.grouper(AES128.BLOCKSIZE, oracle(data)))
         return blocks[injection_block]
 
     last_try = test_ct(0)
@@ -628,10 +586,10 @@ def run_p14():
     # technique we did in p12.
     def new_oracle(data):
         pad_vector = bytes(pad_bytes)
-        injection_block_bytes = (injection_block_index + 1) * BLOCKSIZE
+        injection_block_bytes = (injection_block_index + 1) * AES128.BLOCKSIZE
         return p14_oracle(pad_vector + data)[injection_block_bytes:]
 
-    secret_suffix = find_secret_suffix(new_oracle, BLOCKSIZE)
+    secret_suffix = find_secret_suffix(new_oracle, AES128.BLOCKSIZE)
     if secret_suffix != SECRET_SUFFIX_12:
         print("We ... didn't get it?!")
     else:
@@ -719,7 +677,7 @@ mode have this property?
 // ------------------------------------------------------------
 """
 
-P16_KEY = os.urandom(KEYSIZE)
+P16_KEY = os.urandom(AES128.KEYSIZE)
 P16_PREFIX = b'comment1=cooking%20MCs;userdata='
 P16_SUFFIX = b';comment2=%20like%20a%20pound%20of%20bacon'  
 def p16_cookie(userdata):
@@ -734,10 +692,10 @@ def p16_cookie(userdata):
     userdata = userdata.replace(b'=', b'\\=')
     # And go!
     data = (P16_PREFIX + userdata + P16_SUFFIX)
-    return AES128_CBC_encrypt(pkcs7pad(data, BLOCKSIZE), P16_KEY)
+    return AES128.AES128_CBC_encrypt(pkcs7pad(data, AES128.BLOCKSIZE), P16_KEY)
 
 def p16_cookie_decode(cookie):
-    return pkcs7unpad(AES128_CBC_decrypt(cookie, P16_KEY))
+    return pkcs7unpad(AES128.AES128_CBC_decrypt(cookie, P16_KEY))
 
 def p16_cookie_is_admin(cookie):
     return b'admin=true' in p16_cookie_decode(cookie)
@@ -753,14 +711,14 @@ def run_p16():
     # what we want.
     new_first_block_plaintext = b';admin=true;'
     new_first_block_plaintext += bytes((-len(new_first_block_plaintext))
-                                       % BLOCKSIZE)
+                                       % AES128.BLOCKSIZE)
 
-    old_iv = cookie[:BLOCKSIZE]
+    old_iv = cookie[:AES128.BLOCKSIZE]
     new_iv = xorvec(old_iv,
-                    P16_PREFIX[:BLOCKSIZE],
+                    P16_PREFIX[:AES128.BLOCKSIZE],
                     new_first_block_plaintext)
 
-    new_cookie = new_iv + cookie[BLOCKSIZE:]
+    new_cookie = new_iv + cookie[AES128.BLOCKSIZE:]
     if p16_cookie_is_admin(new_cookie):
         print('We made an admin cookie!')
     else:

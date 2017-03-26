@@ -92,14 +92,14 @@ P17_PLAINTEXTS = list(map(b642b, [
     'MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g=',
     'MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93']))
 
-P17_KEY = os.urandom(KEYSIZE)
+P17_KEY = os.urandom(AES128.KEYSIZE)
 
 def p17_mysterytext():
     plaintext = random.choice(P17_PLAINTEXTS)
-    return AES128_CBC_encrypt(pkcs7pad(plaintext, BLOCKSIZE), P17_KEY)
+    return AES128.AES128_CBC_encrypt(pkcs7pad(plaintext, AES128.BLOCKSIZE), P17_KEY)
 
 def p17_padding_oracle(ciphertext):
-    padded = AES128_CBC_decrypt(ciphertext, P17_KEY)
+    padded = AES128.AES128_CBC_decrypt(ciphertext, P17_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
     return True
@@ -114,9 +114,9 @@ def padding_oracle_crack_block(oracle, prev_block, block):
         # bytes of padding. The i'th byte corresponds to
         # index = (i - 1), and we happen to want
         # BLOCKSIZE - (i - 1) pad bytes. Very convenient.
-        pad_char = BLOCKSIZE - index
+        pad_char = AES128.BLOCKSIZE - index
         tamper_suffix_len = pad_char - 1
-        assert(tamper_suffix_len + index + 1 == BLOCKSIZE)
+        assert(tamper_suffix_len + index + 1 == AES128.BLOCKSIZE)
         # Create a suffix to the tamper IV such that AES_decrypt(block) XOR
         # prev_block XOR tamper_iv will have a suffix of pad_char.
         #
@@ -158,7 +158,7 @@ def padding_oracle_crack_block(oracle, prev_block, block):
         # TODO: eliminate the probabilistic element from the above.
         candidates = []
         for T in range(256):
-            tamper_iv = util.zero_prefix(bytes([T]) + tamper_iv_suffix, BLOCKSIZE)
+            tamper_iv = util.zero_prefix(bytes([T]) + tamper_iv_suffix, AES128.BLOCKSIZE)
             if oracle(tamper_iv + block):
                 candidates.append(T)
         # Now, remember, for each valid T,
@@ -169,11 +169,11 @@ def padding_oracle_crack_block(oracle, prev_block, block):
         candidates = [prev_block[index] ^ T ^ pad_char for T in candidates]
         return [bytes([c]) + known_part for c in candidates]
 
-    assert(len(prev_block) == BLOCKSIZE)
-    assert(len(block) == BLOCKSIZE)
+    assert(len(prev_block) == AES128.BLOCKSIZE)
+    assert(len(block) == AES128.BLOCKSIZE)
     suffix_possibilities = [bytes()]
-    for i in range(BLOCKSIZE):
-        index = BLOCKSIZE - i - 1
+    for i in range(AES128.BLOCKSIZE):
+        index = AES128.BLOCKSIZE - i - 1
         #print('Solving index', index)
         if len(suffix_possibilities) == 0:
             #print('No possibilities left!')
@@ -188,26 +188,26 @@ def padding_oracle_crack_block(oracle, prev_block, block):
     return suffix_possibilities
 
 def padding_oracle_crack(oracle, ciphertext):
-    assert(len(ciphertext) % BLOCKSIZE == 0)
+    assert(len(ciphertext) % AES128.BLOCKSIZE == 0)
     data = bytearray()
-    for i in range(0, len(ciphertext)//BLOCKSIZE - 1):
-        prev_block = ciphertext[(i*BLOCKSIZE):((i+1)*BLOCKSIZE)]
-        block = ciphertext[((i+1)*BLOCKSIZE):((i+2)*BLOCKSIZE)]
+    for i in range(0, len(ciphertext)//AES128.BLOCKSIZE - 1):
+        prev_block = ciphertext[(i*AES128.BLOCKSIZE):((i+1)*AES128.BLOCKSIZE)]
+        block = ciphertext[((i+1)*AES128.BLOCKSIZE):((i+2)*AES128.BLOCKSIZE)]
         candidates = padding_oracle_crack_block(oracle, prev_block, block)
         assert(len(candidates) == 1)
         data.extend(candidates[0])
     return data
 
 P17_TEST_KEY = b'1234567890123456'
-P17_TEST_IV = os.urandom(BLOCKSIZE)
+P17_TEST_IV = os.urandom(AES128.BLOCKSIZE)
 P17_TEST_PLAINTEXT = b'moofy hollins eh'
-P17_TEST_CIPHERTEXT = AES128_CBC_encrypt(
+P17_TEST_CIPHERTEXT = AES128.AES128_CBC_encrypt(
     P17_TEST_PLAINTEXT, P17_TEST_KEY, iv=P17_TEST_IV)
-assert(P17_TEST_CIPHERTEXT[:BLOCKSIZE] == P17_TEST_IV)
+assert(P17_TEST_CIPHERTEXT[:AES128.BLOCKSIZE] == P17_TEST_IV)
 
 def p17_test_oracle(ciphertext):
-    assert(len(ciphertext) == 2*BLOCKSIZE)
-    padded = AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
+    assert(len(ciphertext) == 2*AES128.BLOCKSIZE)
+    padded = AES128.AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
     #print('oracle decoded valid:', padded)
@@ -360,8 +360,8 @@ P19_CIPHERTEXTS = [b642b(line.strip()) for line in
                    P19_CIPHERTEXTS.strip().splitlines()]
 assert(len(P19_CIPHERTEXTS) == 40)
 
-P19_NONCE = 0                  # Constant nonce (oh no!)
-P19_KEY = os.urandom(KEYSIZE)  # Strong key
+P19_NONCE = 0                         # Constant nonce (oh no!)
+P19_KEY = os.urandom(AES128.KEYSIZE)  # Strong key
 
 P19_CIPHERTEXTS = [AES128.AES128_CTR_crypt(P19_KEY, P19_NONCE, m)
                    for m in P19_CIPHERTEXTS]
