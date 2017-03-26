@@ -465,8 +465,8 @@ profile.
 
 def profile_decode(s):
     """
-    >>> profile_decode('uid=bar&email=qux&role=zazzle')
-    {'role': 'zazzle', 'uid': 'bar', 'email': 'qux'}
+    >>> list(sorted(profile_decode('uid=bar&email=qux&role=zazzle').items()))
+    [('email', 'qux'), ('role', 'zazzle'), ('uid', 'bar')]
     """
     d = {}  # Dictionaries are like objects, right?
     for kv in s.split('&'):
