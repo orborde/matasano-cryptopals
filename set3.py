@@ -77,6 +77,8 @@ from set1 import b2b64, b642b, crack_xorchar, english_letters_metric
 from set1 import grouper, is_printable, xorvec
 from set2 import *
 
+import util
+
 P17_PLAINTEXTS = list(map(b642b, [
     'MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=',
     'MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic=',
@@ -100,12 +102,6 @@ def p17_padding_oracle(ciphertext):
     if pkcs7unpad_core(padded) is None:
         return False
     return True
-
-def zero_prefix(data, size):
-    return bytes(size - len(data)) + data
-
-def zero_suffix(data, size):
-    return data + bytes(size - len(data))
 
 def padding_oracle_crack_block(oracle, prev_block, block):
     def crack_helper(index, known_part):
@@ -161,7 +157,7 @@ def padding_oracle_crack_block(oracle, prev_block, block):
         # TODO: eliminate the probabilistic element from the above.
         candidates = []
         for T in range(256):
-            tamper_iv = zero_prefix(bytes([T]) + tamper_iv_suffix, BLOCKSIZE)
+            tamper_iv = util.zero_prefix(bytes([T]) + tamper_iv_suffix, BLOCKSIZE)
             if oracle(tamper_iv + block):
                 candidates.append(T)
         # Now, remember, for each valid T,
@@ -305,7 +301,7 @@ def int2bytes(n, length):
         out.append(n % 256)
         n = n // 256
     assert(len(out) <= length)
-    return bytes(zero_suffix(out, length))
+    return bytes(util.zero_suffix(out, length))
 
 def AES128_CTR_keystream(key, nonce):
     assert(len(nonce) == BLOCKSIZE // 2)
