@@ -47,12 +47,15 @@ def CBC_decrypt(ciphertext, key):
         last_cipherblock = block
     return plaintext
 
-def CTR_keystream(key, nonce):
+def CTR_block(key, nonce, blocknum):
     assert(len(nonce) == BLOCKSIZE // 2)
+    plaintext = nonce + util.int2bytes(blocknum, BLOCKSIZE//2)
+    return encrypt(plaintext, key)
+
+def CTR_keystream(key, nonce):
     ctr = 0
     while True:
-        next_plaintext = nonce + util.int2bytes(ctr, BLOCKSIZE//2)
-        for c in encrypt(next_plaintext, key):
+        for c in CTR_block(key, nonce, ctr):
             yield c
         ctr += 1
 
