@@ -77,6 +77,7 @@ from set1 import b2b64, b642b, crack_xorchar, english_letters_metric
 from set1 import grouper, is_printable, xorvec
 from set2 import *
 
+import AES128
 import util
 
 P17_PLAINTEXTS = list(map(b642b, [
@@ -289,27 +290,6 @@ function to encrypt and decrypt other things.
 
 """
 
-def AES128_CTR_keystream(key, nonce):
-    assert(len(nonce) == BLOCKSIZE // 2)
-    ctr = 0
-    while True:
-        next_plaintext = nonce + util.int2bytes(ctr, BLOCKSIZE//2)
-        for c in AES128_encrypt(next_plaintext, key):
-            yield c
-        ctr += 1
-
-CTR_TEST = b'hello potato, i am a cheese'
-def AES128_CTR_crypt(key, nonce, data):
-    """
-    # Isn't this a hilarious test?
-    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST) != CTR_TEST
-    True
-    >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST)) == CTR_TEST
-    True
-    """
-    nonce = util.int2bytes(nonce, BLOCKSIZE//2)
-    return bytes(x^y for x, y in zip(AES128_CTR_keystream(key, nonce), data))
-
 P18_CIPHERTEXT = b642b(
     'L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==')
 P18_KEY = b'YELLOW SUBMARINE'
@@ -317,7 +297,7 @@ P18_NONCE = 0
 
 def run_p18():
     print('Problem 18')
-    print('Decryption:', AES128_CTR_crypt(P18_KEY, P18_NONCE, P18_CIPHERTEXT))
+    print('Decryption:', AES128.AES128_CTR_crypt(P18_KEY, P18_NONCE, P18_CIPHERTEXT))
 
 """
 
@@ -383,7 +363,7 @@ assert(len(P19_CIPHERTEXTS) == 40)
 P19_NONCE = 0                  # Constant nonce (oh no!)
 P19_KEY = os.urandom(KEYSIZE)  # Strong key
 
-P19_CIPHERTEXTS = [AES128_CTR_crypt(P19_KEY, P19_NONCE, m)
+P19_CIPHERTEXTS = [AES128.AES128_CTR_crypt(P19_KEY, P19_NONCE, m)
                    for m in P19_CIPHERTEXTS]
 
 """
