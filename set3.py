@@ -289,25 +289,11 @@ function to encrypt and decrypt other things.
 
 """
 
-def int2bytes(n, length):
-    """
-    >>> int2bytes(2, 5)
-    b'\\x02\\x00\\x00\\x00\\x00'
-    >>> int2bytes(259, 5)
-    b'\\x03\\x01\\x00\\x00\\x00'
-    """
-    out = bytearray()
-    while n:
-        out.append(n % 256)
-        n = n // 256
-    assert(len(out) <= length)
-    return bytes(util.zero_suffix(out, length))
-
 def AES128_CTR_keystream(key, nonce):
     assert(len(nonce) == BLOCKSIZE // 2)
     ctr = 0
     while True:
-        next_plaintext = nonce + int2bytes(ctr, BLOCKSIZE//2)
+        next_plaintext = nonce + util.int2bytes(ctr, BLOCKSIZE//2)
         for c in AES128_encrypt(next_plaintext, key):
             yield c
         ctr += 1
@@ -321,7 +307,7 @@ def AES128_CTR_crypt(key, nonce, data):
     >>> AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, AES128_CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST)) == CTR_TEST
     True
     """
-    nonce = int2bytes(nonce, BLOCKSIZE//2)
+    nonce = util.int2bytes(nonce, BLOCKSIZE//2)
     return bytes(x^y for x, y in zip(AES128_CTR_keystream(key, nonce), data))
 
 P18_CIPHERTEXT = b642b(
