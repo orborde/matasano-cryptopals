@@ -123,7 +123,7 @@ def run_p10():
     INPUT = b642b(open('set2p10.txt').read())
     KEY = b'YELLOW SUBMARINE'
     IV = bytes(AES128.BLOCKSIZE)
-    output = AES128.AES128_CBC_decrypt(IV + INPUT, KEY)
+    output = AES128.CBC_decrypt(IV + INPUT, KEY)
     print('First 3 lines of output:')
     for line in output.splitlines()[:3]:
         print(line.decode())
@@ -165,7 +165,7 @@ def p11_oracle(data):
     data = (os.urandom(random.randint(5, 10)) +
             data +
             os.urandom(random.randint(5, 10)))
-    encryption = random.choice([AES128.AES128_encrypt, AES128.AES128_CBC_encrypt])
+    encryption = random.choice([AES128.encrypt, AES128.CBC_encrypt])
     return encryption(pkcs7pad(data, AES128.BLOCKSIZE), key), encryption
 
 def is_ecb(ciphertext):
@@ -186,9 +186,9 @@ def run_p11():
         runs += 1
         ciphertext, encryption = p11_oracle(data)
         if is_ecb(ciphertext):
-            guess = AES128.AES128_encrypt
+            guess = AES128.encrypt
         else:
-            guess = AES128.AES128_CBC_encrypt
+            guess = AES128.CBC_encrypt
         if encryption is guess:
             correct += 1
 
@@ -262,7 +262,7 @@ SECRET_SUFFIX_12 = b642b("""
 KEY_12 = os.urandom(AES128.KEYSIZE)
 
 def secret_suffix_oracle(secret_suffix, data):
-    return AES128.AES128_encrypt(pkcs7pad(data + secret_suffix, AES128.BLOCKSIZE),
+    return AES128.encrypt(pkcs7pad(data + secret_suffix, AES128.BLOCKSIZE),
                           KEY_12)
 
 def p12_oracle(data):
@@ -456,10 +456,10 @@ def profile_for(email):
 
 P13_KEY = os.urandom(AES128.KEYSIZE)
 def profile_cookie(email):
-    return AES128.AES128_encrypt(pkcs7pad(profile_for(email).encode(), AES128.BLOCKSIZE), P13_KEY)
+    return AES128.encrypt(pkcs7pad(profile_for(email).encode(), AES128.BLOCKSIZE), P13_KEY)
 
 def profile_cookie_decode(cookie):
-    return profile_decode(pkcs7unpad(AES128.AES128_decrypt(cookie, P13_KEY)).decode())
+    return profile_decode(pkcs7unpad(AES128.decrypt(cookie, P13_KEY)).decode())
 
 def gen_admin_cookie():
     # 1. Create a plaintext using (e.g.) XXXXXXXXXadmin\0b... as the
@@ -692,10 +692,10 @@ def p16_cookie(userdata):
     userdata = userdata.replace(b'=', b'\\=')
     # And go!
     data = (P16_PREFIX + userdata + P16_SUFFIX)
-    return AES128.AES128_CBC_encrypt(pkcs7pad(data, AES128.BLOCKSIZE), P16_KEY)
+    return AES128.CBC_encrypt(pkcs7pad(data, AES128.BLOCKSIZE), P16_KEY)
 
 def p16_cookie_decode(cookie):
-    return pkcs7unpad(AES128.AES128_CBC_decrypt(cookie, P16_KEY))
+    return pkcs7unpad(AES128.CBC_decrypt(cookie, P16_KEY))
 
 def p16_cookie_is_admin(cookie):
     return b'admin=true' in p16_cookie_decode(cookie)

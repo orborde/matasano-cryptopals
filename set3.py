@@ -96,10 +96,10 @@ P17_KEY = os.urandom(AES128.KEYSIZE)
 
 def p17_mysterytext():
     plaintext = random.choice(P17_PLAINTEXTS)
-    return AES128.AES128_CBC_encrypt(pkcs7pad(plaintext, AES128.BLOCKSIZE), P17_KEY)
+    return AES128.CBC_encrypt(pkcs7pad(plaintext, AES128.BLOCKSIZE), P17_KEY)
 
 def p17_padding_oracle(ciphertext):
-    padded = AES128.AES128_CBC_decrypt(ciphertext, P17_KEY)
+    padded = AES128.CBC_decrypt(ciphertext, P17_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
     return True
@@ -201,13 +201,13 @@ def padding_oracle_crack(oracle, ciphertext):
 P17_TEST_KEY = b'1234567890123456'
 P17_TEST_IV = os.urandom(AES128.BLOCKSIZE)
 P17_TEST_PLAINTEXT = b'moofy hollins eh'
-P17_TEST_CIPHERTEXT = AES128.AES128_CBC_encrypt(
+P17_TEST_CIPHERTEXT = AES128.CBC_encrypt(
     P17_TEST_PLAINTEXT, P17_TEST_KEY, iv=P17_TEST_IV)
 assert(P17_TEST_CIPHERTEXT[:AES128.BLOCKSIZE] == P17_TEST_IV)
 
 def p17_test_oracle(ciphertext):
     assert(len(ciphertext) == 2*AES128.BLOCKSIZE)
-    padded = AES128.AES128_CBC_decrypt(ciphertext, P17_TEST_KEY)
+    padded = AES128.CBC_decrypt(ciphertext, P17_TEST_KEY)
     if pkcs7unpad_core(padded) is None:
         return False
     #print('oracle decoded valid:', padded)
@@ -297,7 +297,7 @@ P18_NONCE = 0
 
 def run_p18():
     print('Problem 18')
-    print('Decryption:', AES128.AES128_CTR_crypt(P18_KEY, P18_NONCE, P18_CIPHERTEXT))
+    print('Decryption:', AES128.CTR_crypt(P18_KEY, P18_NONCE, P18_CIPHERTEXT))
 
 """
 
@@ -363,7 +363,7 @@ assert(len(P19_CIPHERTEXTS) == 40)
 P19_NONCE = 0                         # Constant nonce (oh no!)
 P19_KEY = os.urandom(AES128.KEYSIZE)  # Strong key
 
-P19_CIPHERTEXTS = [AES128.AES128_CTR_crypt(P19_KEY, P19_NONCE, m)
+P19_CIPHERTEXTS = [AES128.CTR_crypt(P19_KEY, P19_NONCE, m)
                    for m in P19_CIPHERTEXTS]
 
 """
