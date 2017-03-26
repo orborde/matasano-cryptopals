@@ -26,14 +26,8 @@ INPUT_1 = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736
 OUTPUT_1 = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
 
 import doctest
-import itertools
 
-# I'm learning Py3 as I go here. I see that this ridiculous hack is
-# still necessary...
-# http://stackoverflow.com/questions/5850536/how-to-chunk-a-list-in-python-3
-def grouper(n, iterable, padvalue=None):
-    "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
-    return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
+import util
 
 def h2b(s):
     """Converts a hex string to a byte array. bytes.fromhex for
@@ -41,7 +35,7 @@ def h2b(s):
     """
     assert(len(s)%2 == 0)
     # Divide into 2-char chunks and convert to hex!
-    return bytearray(int(''.join(chunk), 16) for chunk in grouper(2, s))
+    return bytearray(int(''.join(chunk), 16) for chunk in util.grouper(2, s))
 
 def b2h(b):
     """Converts a byte array to a hex string representation."""
@@ -92,7 +86,7 @@ def b2b64(input_bytedata):
     # Work in groups of 3 bytes, which lets us do a pretty simple
     # mask-and-shift loop.
     output = []
-    for a,b,c in grouper(3, bytedata):
+    for a,b,c in util.grouper(3, bytedata):
         # Merge into a big ol' int
         piece = (a << 16) + (b << 8) + c
         # Mask out, look up, and output each 6-bit block.
@@ -143,7 +137,7 @@ def b642b(input_str):
     # TODO: compute a reverse lookup table!
     # Work in groups of 4 chars (3 bytes), letting us work a block at a time.
     output = bytearray()
-    for group in grouper(4, input_str):
+    for group in util.grouper(4, input_str):
         ai, bi, ci, di = [B64_LOOKUP.index(x) for x in group]
         # Merge into a single integer
         piece = (ai << 18) + (bi << 12) + (ci << 6) + di
@@ -594,7 +588,7 @@ def run_p6():
     for length in range(1,50):
         # Chop up into groups. Drop the last one.
         reduced_length = (len(gibberish) // length) * length
-        groups = list(grouper(length, gibberish[:reduced_length]))
+        groups = list(util.grouper(length, gibberish[:reduced_length]))
         pairs = zip(groups[:-1], groups[1:])
         norm_distances = [hamming_distance(a,b)/length for a,b in pairs]
         avg_dist = sum(norm_distances) / len(norm_distances)
@@ -706,7 +700,7 @@ def run_p8():
     # For each line, find the set of unique blocks that appear in it.
     input_lines_reduced = []
     for line in input_lines:
-        input_lines_reduced.append(set(grouper(blocksize, line)))
+        input_lines_reduced.append(set(util.grouper(blocksize, line)))
     # Since we need to remember the original position of the found
     # line in the file, sort the array indices by the size of the
     # unique-set.

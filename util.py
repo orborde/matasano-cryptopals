@@ -1,3 +1,12 @@
+import itertools
+
+# I'm learning Py3 as I go here. I see that this ridiculous hack is
+# still necessary...
+# http://stackoverflow.com/questions/5850536/how-to-chunk-a-list-in-python-3
+def grouper(n, iterable, padvalue=None):
+    "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
+    return itertools.zip_longest(*[iter(iterable)]*n, fillvalue=padvalue)
+
 def zero_prefix(data, size):
     return bytes(size - len(data)) + data
 

@@ -74,7 +74,7 @@ import os
 import random
 
 from set1 import b2b64, b642b, crack_xorchar, english_letters_metric
-from set1 import grouper, is_printable, xorvec
+from set1 import is_printable, xorvec
 from set2 import *
 
 import AES128

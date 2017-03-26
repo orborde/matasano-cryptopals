@@ -7,7 +7,9 @@ import os
 import random
 import sys
 
-from set1 import b2b64, b642b, grouper, xorvec
+from set1 import b2b64, b642b, xorvec
+
+import util
 
 """
 // ------------------------------------------------------------
@@ -137,7 +139,7 @@ def AES128_CBC_encrypt(plaintext, key, iv=None):
         iv = os.urandom(BLOCKSIZE)
     last_cipherblock = iv
     ciphertext = bytearray(iv)
-    for block in grouper(BLOCKSIZE, plaintext):
+    for block in util.grouper(BLOCKSIZE, plaintext):
         block = bytes(block)
         encrypt = AES128_encrypt(
             xorvec(last_cipherblock, block), key)
@@ -146,7 +148,7 @@ def AES128_CBC_encrypt(plaintext, key, iv=None):
     return ciphertext
 
 def AES128_CBC_decrypt(ciphertext, key):
-    blocks = list(grouper(BLOCKSIZE, ciphertext))
+    blocks = list(util.grouper(BLOCKSIZE, ciphertext))
     # Initialization vector
     last_cipherblock = blocks[0]
     plaintext = bytearray()
@@ -213,7 +215,7 @@ def is_ecb(ciphertext):
     # that there will be no identical blocks. Meanwhile, ECB will have
     # many duplicate blocks because I'm passing in all zeros (see
     # below).
-    blocks = list(grouper(BLOCKSIZE, ciphertext))
+    blocks = list(util.grouper(BLOCKSIZE, ciphertext))
     return (len(set(blocks)) != len(blocks))
 
 def run_p11():
@@ -386,7 +388,7 @@ def run_p12():
     oracle = p12_oracle
     blocksize = find_block_size(oracle)
     print('Block size is', blocksize, 'bytes.')
-    ecb_check_data = list(grouper(blocksize, oracle(bytes(1000))))
+    ecb_check_data = list(util.grouper(blocksize, oracle(bytes(1000))))
     if len(set(ecb_check_data)) == len(ecb_check_data):
         print('...not ECB, apparently. Huh?')
         return
@@ -584,8 +586,8 @@ def p14_oracle(data):
 
 def find_data_injection_block(oracle):
     # Figure out what block the beginning byte is in.
-    nul = list(grouper(BLOCKSIZE, oracle(b'')))
-    single = list(grouper(BLOCKSIZE, oracle(b'x')))
+    nul = list(util.grouper(BLOCKSIZE, oracle(b'')))
+    single = list(util.grouper(BLOCKSIZE, oracle(b'x')))
     # The first block that differs between the two contains the first
     # byte.
     for i in range(min(len(single), len(nul))):
@@ -600,7 +602,7 @@ def find_distance_to_block_edge(oracle, injection_block):
     def test_ct(i):
         # Generate a candidate injection block. Used later.
         data = b'x' * i
-        blocks = list(grouper(BLOCKSIZE, oracle(data)))
+        blocks = list(util.grouper(BLOCKSIZE, oracle(data)))
         return blocks[injection_block]
 
     last_try = test_ct(0)
