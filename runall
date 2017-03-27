@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+for s in set*.py
+do
+		echo === $s ===
+		./$s
+done
