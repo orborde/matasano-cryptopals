@@ -664,6 +664,8 @@ def run_p7():
     binary = b642b(INPUT_7)
     aes = AES.new(b'YELLOW SUBMARINE', AES.MODE_ECB)
     message = aes.decrypt(binary).decode()
+    with open('set1p7.plaintext', 'w') as pt:
+        pt.write(message)
     print('First three lines of plaintext:')
     for l in message.splitlines()[:5]:
         print('>', l)
