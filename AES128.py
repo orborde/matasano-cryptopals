@@ -9,6 +9,9 @@ from Crypto.Cipher import AES
 KEYSIZE=16
 BLOCKSIZE=16
 
+def gen_key():
+    return os.urandom(KEYSIZE)
+
 def encrypt(plaintext, key):
     assert(len(key) == KEYSIZE)
     aes = AES.new(key, AES.MODE_ECB)
@@ -46,6 +49,9 @@ def CBC_decrypt(ciphertext, key):
         plaintext.extend(decrypted)
         last_cipherblock = block
     return plaintext
+
+def CTR_gen_nonce():
+    return os.urandom(BLOCKSIZE // 2)
 
 def CTR_block(key, nonce, blocknum):
     assert(len(nonce) == BLOCKSIZE // 2)
