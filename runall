@@ -2,7 +2,7 @@
 
 set -e
 
-for s in set*.py
+for s in `ls set*.py | sort`
 do
 		echo === $s ===
 		./$s
