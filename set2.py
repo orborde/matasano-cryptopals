@@ -724,6 +724,7 @@ def run_p16():
     else:
         print('Our best attempts at forgery were insufficient. We made this cookie:')
         print(p16_cookie_decode(new_cookie))
+        assert(0)
 
 
 if __name__ == '__main__':
