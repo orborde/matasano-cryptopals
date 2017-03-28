@@ -67,15 +67,15 @@ def CTR_keystream(key, nonce):
         ctr += 1
 
 CTR_TEST = b'hello potato, i am a cheese'
+NONCE_1 = util.int2bytes(1, CTR_NONCE_SIZE)
 def CTR_crypt(key, nonce, data):
     """
     # Isn't this a hilarious test?
-    >>> CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST) != CTR_TEST
+    >>> CTR_crypt(b'YELLOW SUBMARINE', NONCE_1, CTR_TEST) != CTR_TEST
     True
-    >>> CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_crypt(b'YELLOW SUBMARINE', 1, CTR_TEST)) == CTR_TEST
+    >>> CTR_crypt(b'YELLOW SUBMARINE', NONCE_1, CTR_crypt(b'YELLOW SUBMARINE', NONCE_1, CTR_TEST)) == CTR_TEST
     True
     """
-    nonce = util.int2bytes(nonce, BLOCKSIZE//2)
     return bytes(x^y for x, y in zip(CTR_keystream(key, nonce), data))
 
 

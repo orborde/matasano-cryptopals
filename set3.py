@@ -293,7 +293,7 @@ function to encrypt and decrypt other things.
 P18_CIPHERTEXT = b642b(
     'L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==')
 P18_KEY = b'YELLOW SUBMARINE'
-P18_NONCE = 0
+P18_NONCE = util.int2bytes(0, AES128.CTR_NONCE_SIZE)
 
 def run_p18():
     print('Problem 18')
@@ -360,8 +360,8 @@ P19_CIPHERTEXTS = [b642b(line.strip()) for line in
                    P19_CIPHERTEXTS.strip().splitlines()]
 assert(len(P19_CIPHERTEXTS) == 40)
 
-P19_NONCE = 0                         # Constant nonce (oh no!)
-P19_KEY = os.urandom(AES128.KEYSIZE)  # Strong key
+P19_NONCE = util.int2bytes(0, AES128.CTR_NONCE_SIZE)  # Constant nonce (oh no!)
+P19_KEY = os.urandom(AES128.KEYSIZE)                  # Strong key
 
 P19_CIPHERTEXTS = [AES128.CTR_crypt(P19_KEY, P19_NONCE, m)
                    for m in P19_CIPHERTEXTS]
