@@ -51,12 +51,13 @@ def CBC_decrypt(ciphertext, key):
     return plaintext
 
 CTR_NONCE_SIZE = BLOCKSIZE // 2
+CTR_COUNTER_SIZE = BLOCKSIZE // 2
 def CTR_gen_nonce():
     return os.urandom(CTR_NONCE_SIZE)
 
 def CTR_block(key, nonce, blocknum):
     assert(len(nonce) == CTR_NONCE_SIZE)
-    plaintext = nonce + util.int2bytes(blocknum, BLOCKSIZE//2)
+    plaintext = nonce + util.int2bytes(blocknum, CTR_COUNTER_SIZE)
     return encrypt(plaintext, key)
 
 def CTR_keystream(key, nonce):
