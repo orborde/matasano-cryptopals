@@ -87,6 +87,21 @@ def _process_chunk(chunk, h0, h1, h2, h3, h4):
 
     return h0, h1, h2, h3, h4
 
+def digest_suffix(message_byte_length):
+    suffix = b''
+
+    # append the bit '1' to the suffix
+    suffix += b'\x80'
+
+    # append 0 <= k < 512 bits '0', so that the resulting message length (in bytes)
+    # is congruent to 56 (mod 64)
+    suffix += b'\x00' * ((56 - (message_byte_length + 1) % 64) % 64)
+
+    # append length of message (before pre-processing), in bits, as 64-bit big-endian integer
+    message_bit_length = message_byte_length * 8
+    suffix += struct.pack(b'>Q', message_bit_length)
+    return suffix
+
 class Sha1Hash(object):
     """A class that mimics that hashlib api and implements the SHA-1 algorithm."""
 
@@ -148,16 +163,7 @@ class Sha1Hash(object):
         message = self._unprocessed
         message_byte_length = self._message_byte_length + len(message)
 
-        # append the bit '1' to the message
-        message += b'\x80'
-        
-        # append 0 <= k < 512 bits '0', so that the resulting message length (in bytes)
-        # is congruent to 56 (mod 64)
-        message += b'\x00' * ((56 - (message_byte_length + 1) % 64) % 64)
-        
-        # append length of message (before pre-processing), in bits, as 64-bit big-endian integer
-        message_bit_length = message_byte_length * 8
-        message += struct.pack(b'>Q', message_bit_length)
+        message += digest_suffix(message_byte_length)
 
         # Process the final chunk
         # At this point, the length of the message is either 64 or 128 bytes.
