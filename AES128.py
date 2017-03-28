@@ -55,7 +55,7 @@ def CTR_gen_nonce():
     return os.urandom(CTR_NONCE_SIZE)
 
 def CTR_block(key, nonce, blocknum):
-    assert(len(nonce) == BLOCKSIZE // 2)
+    assert(len(nonce) == CTR_NONCE_SIZE)
     plaintext = nonce + util.int2bytes(blocknum, BLOCKSIZE//2)
     return encrypt(plaintext, key)
 
