@@ -54,3 +54,56 @@ This is a very useful attack.
 For instance: Thai Duong and Juliano Rizzo, who got to this attack
 before we did, used it to break the Flickr API."""
 
+import os
+import random
+import struct
+
+import sha1
+
+from set1 import b2h
+from set4p28 import *
+
+def extend_mac(secret_key_length, original_message, mac, extension):
+    print('Trying secret key length', secret_key_length)
+    keymsg_length = secret_key_length + len(original_message)
+    glue_padding = sha1.digest_suffix(keymsg_length)
+    extended_message = (
+        original_message +
+        glue_padding +
+        extension)
+    # Set up as if the message processed so far is
+    # original_message + glue_padding. The h vector is simply the
+    # original MAC.
+    sha = sha1.Sha1Hash()
+    h = struct.unpack(b'>IIIII', mac)
+    sha._h = h
+    sha._message_byte_length = keymsg_length + len(glue_padding)
+    sha.update(extension)
+    ext_mac = sha.digest()
+    return extended_message, ext_mac
+
+EXTENSION = b';admin=true;'
+def attack(original_message, mac, validate):
+    for secret_len in range(20+1):
+        newmsg, newmac = extend_mac(
+            secret_len, original_message, mac, EXTENSION)
+        if validate(newmsg, newmac):
+            return newmsg, newmac
+    assert False, "No reasonably short secret key length worked"
+
+
+if __name__ == '__main__':
+    print('Problem 29')
+    key = os.urandom(random.randint(8, 20))
+    print('Key =', b2h(key))
+    message = b"comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon"
+    mac = SHA1_prefix_MAC(key, message)
+    print('ORIGINAL:', b2h(mac), message)
+    assert SHA1_prefix_MAC_check(key, message, mac)
+    extended_message, extended_mac = attack(
+        message, mac, lambda msg,mac: SHA1_prefix_MAC_check(key, msg, mac))
+    print('MODIFIED:', b2h(extended_mac), extended_message)
+    assert SHA1_prefix_MAC_check(key, extended_message, extended_mac)
+    assert EXTENSION in extended_message
+    print("You're winner!")
+    print()
