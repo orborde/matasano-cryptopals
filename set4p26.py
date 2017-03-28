@@ -10,6 +10,8 @@ CTR mode instead of CBC mode. Inject an "admin=true" token.
 
 import AES128
 
+from set1 import xorvec
+
 KEY = AES128.gen_key()
 PREFIX = b'comment1=cooking%20MCs;userdata='
 SUFFIX = b';comment2=%20like%20a%20pound%20of%20bacon'
@@ -42,3 +44,33 @@ import doctest
 def load_tests(loader, tests, ignore):
     tests.addTests(doctest.DocTestSuite())
     return tests
+
+TO_INJECT=b';admin=true;'
+def attack(vend_cookie):
+    mincookie = vend_cookie(b'')
+    minlen = len(mincookie)
+    # Make the user data long enough that we can definitely target our
+    # injected data in it.
+    landingpad = b'A' * minlen * 2
+    lookycookie = vend_cookie(landingpad)
+    splice_start, splice_end = minlen, minlen+len(TO_INJECT)
+    segment = lookycookie[splice_start:splice_end]
+    assert(len(segment) == len(TO_INJECT))
+    landingpad_segment = b'A'*len(segment)
+    segment_keystream = xorvec(landingpad_segment, segment)
+    segment = xorvec(segment_keystream, TO_INJECT)
+    atkkie = (lookycookie[:splice_start] +
+              segment +
+              lookycookie[splice_end:])
+    assert len(atkkie) == len(lookycookie)
+    return atkkie
+
+if __name__ == '__main__':
+    print("Problem 26")
+    print("Attacking...")
+    badcookie = attack(cookie)
+    print("Attack cookie is:", badcookie)
+    print("  which decodes to", cookie_decode(badcookie))
+    assert cookie_is_admin(badcookie)
+    print("Admin cookie generated!")
+    print()
