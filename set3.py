@@ -683,6 +683,7 @@ def run_p23():
             print('OH NO!', i, s, '!=', c)
             return
     print('...you did it! :D')
+    print()
 
 """Q: How would you modify MT19937 to make this attack hard? What would
 happen if you subjected each tempered output to a cryptographic hash?
