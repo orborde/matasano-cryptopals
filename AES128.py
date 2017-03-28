@@ -51,7 +51,7 @@ def CBC_decrypt(ciphertext, key):
     return plaintext
 
 CTR_NONCE_SIZE = BLOCKSIZE // 2
-CTR_COUNTER_SIZE = BLOCKSIZE // 2
+CTR_COUNTER_SIZE = BLOCKSIZE - CTR_NONCE_SIZE
 def CTR_gen_nonce():
     return os.urandom(CTR_NONCE_SIZE)
 
