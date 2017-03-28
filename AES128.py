@@ -37,12 +37,15 @@ def CBC_encrypt(plaintext, key, iv=None):
         last_cipherblock = encrypted
     return ciphertext
 
-def CBC_decrypt(ciphertext, key):
+def CBC_decrypt(ciphertext, key, iv=None):
     blocks = list(util.grouper(BLOCKSIZE, ciphertext))
-    # Initialization vector
-    last_cipherblock = blocks[0]
+    if iv is None:
+        last_cipherblock = blocks[0]
+        blocks = blocks[1:]
+    else:
+        last_cipherblock = iv
     plaintext = bytearray()
-    for block in blocks[1:]:
+    for block in blocks:
         block = bytes(block)
         decrypted = decrypt(block, key)
         decrypted = xorvec(last_cipherblock, decrypted)
