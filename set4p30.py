@@ -40,7 +40,7 @@ def extend_mac(secret_key_length, original_message, mac, extension):
         extension)
     # Set up as if the message processed so far is
     # original_message + glue_padding.
-    state = struct.unpack(b'>IIII', mac)
+    state = struct.unpack(b'<IIII', mac)
     final_byte_count = (
         keymsg_length +
         len(glue_padding) +
