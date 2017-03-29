@@ -32,9 +32,8 @@ def extend_mac(secret_key_length, original_message, mac, extension):
     print('Trying secret key length', secret_key_length)
     keymsg_length = secret_key_length + len(original_message)
     glue_padding = md4.md_pad_64(
-        original_message,
-        md4.MD4_length2bytes,
-        fake_byte_len=keymsg_length)
+        keymsg_length * b'X',
+        md4.MD4_length2bytes)[keymsg_length:]
     extended_message = (
         original_message +
         glue_padding +
