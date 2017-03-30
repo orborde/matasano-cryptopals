@@ -37,3 +37,11 @@ Finally, to encrypt a string, do something cheesy, like convert the
 string to hex and put "0x" on the front of it to turn it into a
 number. The math cares not how stupidly you feed it strings."""
 
+import subprocess
+
+def genprime(bits):
+    bits = int(bits)  # coerce for great justice
+    cmd = ['openssl', 'prime', '-generate', '-bits', str(bits)]
+    result = int(subprocess.check_output(cmd).strip())
+    return result
+
