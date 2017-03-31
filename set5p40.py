@@ -85,6 +85,8 @@ def attack(vend):
         (c[0] * m_s[0] * invmod(m_s[0], n[0])) +
         (c[1] * m_s[1] * invmod(m_s[1], n[1])) +
         (c[2] * m_s[2] * invmod(m_s[2], n[2])))
+    # THE INSTRUCTIONS ARE FULL OF LIIIIIES.
+    result = result % (n[0]*n[1]*n[2])
     m = iroot(3, result)
     for nv, cv in zip(n, c):
         assert (result % nv) == cv
