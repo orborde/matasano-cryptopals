@@ -86,6 +86,9 @@ def attack(vend):
         (c[1] * m_s[1] * invmod(m_s[1], n[1])) +
         (c[2] * m_s[2] * invmod(m_s[2], n[2])))
     m = iroot(3, result)
+    for nv, cv in zip(n, c):
+        assert (result % nv) == cv
+    assert len(set((m % nv) for nv in n)) == 1
     return m2bytes(m)
 
 if __name__ == '__main__':
