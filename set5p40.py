@@ -75,9 +75,9 @@ def attack(vend):
     c, n, e = (list(i) for i in zip(*vends))
     assert all(e == 3 for e in e)
     m_s = [
-        c[1]*c[2],
-        c[0]*c[2],
-        c[0]*c[1]
+        n[1]*n[2],
+        n[0]*n[2],
+        n[0]*n[1]
     ]
     # I swear that I spent a while thinking about how to attack this
     # before I copy-pasted in this equation! :P
