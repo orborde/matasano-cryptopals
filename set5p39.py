@@ -90,3 +90,84 @@ class Invmod(unittest.TestCase):
                     self.assertNotEqual(gcd(x, mod), 1)
                 else:
                     self.assertEqual((x*ix)%mod, 1)
+
+def gen_rsa(bits):
+    """Generate an RSA keypair with a modulus of (probably) size 'bits'."""
+    e = 3
+    p = genprime(bits // 2)
+    q = genprime(bits // 2)
+    n = p*q
+    et = (p-1)*(q-1)
+    d = invmod(e, et)
+    return n, e, d
+
+def powmod(x, p, m):
+    """Computes x^p mod m efficiently.
+
+    >>> powmod(2, 10, 11)
+    1
+    >>> powmod(2, 13, 11)
+    8
+    >>> powmod(0, 13, 11)
+    0
+    """
+    if x == 0:
+        return 0
+    res = 1
+    mul = x
+    assert p >= 0
+    while p > 0:
+        b = p%2
+        if b:
+            res = (res * mul) % m
+        p = p // 2
+        mul = (mul * mul) % m
+    return res
+
+def rsa_encrypt(n, e, m):
+    return powmod(m, e, n)
+def rsa_decrypt(n, d, c):
+    return powmod(c, d, n)
+
+from set1 import b2h, h2b
+
+def bytes2m(b, n):
+    m = 0
+    for x in b:
+        m *= 256
+        m += x
+    assert m < n
+    return m
+def m2bytes(m):
+    b = []
+    assert m >= 0
+    while m != 0:
+        d = m % 256
+        b.append(d)
+        m = m >> 8
+    b.reverse()
+    return bytes(b)
+
+if __name__ == '__main__':
+    print('Problem 39')
+    print('Generating some RSA keys')
+    n, e, d = gen_rsa(2048)
+    print('n =', n)
+    print('e =', e)
+    print('d =', d)
+
+    message = (
+        b'Bacon and a half wich, never more to go.\n' +
+        b'Ever are ridiculous, for they are sure to flow.\n' +
+        b'When did the cow taffer its way under the gate?\n' +
+        b'Answer: when a good prognost went on a lovely date!')
+    print('Encrypting', message)
+    m = bytes2m(message, n)
+    print('m =', m)
+    c = rsa_encrypt(n, e, m)
+    print('c =', c)
+    p = rsa_decrypt(n, d, c)
+    assert p == m
+    pt = m2bytes(p)
+    print('Decrypt is:', pt)
+    assert pt == message
