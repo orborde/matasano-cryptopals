@@ -38,3 +38,62 @@ where:
 
 To decrypt RSA using a simple cube root, leave off the final modulus
 operation; just take the raw accumulated result and cube-root it."""
+
+from set5p39 import *
+
+SECRET = b"""
+What's the word?
+The word is the bird.
+The word is a nerd.
+Are you a curd?
+Word.
+
+Writing ridiculous plaintexts has to be one of the biggest challenges
+of these exercises."""
+KEYSIZE_BITS = 2048
+assert len(SECRET)*8 < KEYSIZE_BITS
+
+def vend_a_ciphertext():
+    n, e, _ = gen_rsa(KEYSIZE_BITS)
+    m = bytes2m(SECRET, n)
+    c = rsa_encrypt(n, e, m)
+    return c, n, e
+
+# https://rosettacode.org/wiki/Integer_roots#Python
+def iroot(a,b):
+    if b<2:return b
+    a1=a-1
+    c=1
+    d=(a1*c+b//(c**a1))//a
+    e=(a1*d+b//(d**a1))//a
+    while c!=d and c!=e:
+        c,d,e=d,e,(a1*e+b//(e**a1))//a
+    return min(d,e)
+
+def attack(vend):
+    vends = [vend() for _ in range(3)]
+    assert all(e == 3 for _,_,e in vends)
+    c, n, e = (list(i) for i in zip(*vends))
+    m_s = [
+        c[1]*c[2],
+        c[0]*c[2],
+        c[0]*c[1]
+    ]
+    # I swear that I spent a while thinking about how to attack this
+    # before I copy-pasted in this equation! :P
+    result = (
+        (c[0] * m_s[0] * invmod(m_s[0], n[0])) +
+        (c[1] * m_s[1] * invmod(m_s[1], n[1])) +
+        (c[2] * m_s[2] * invmod(m_s[2], n[2])))
+    m = iroot(3, result)
+    return m2bytes(m)
+
+if __name__ == '__main__':
+    print('Problem 40')
+    print('Secret:   ', SECRET)
+    print('Attacking...')
+    recovered = attack(vend_a_ciphertext)
+    print('Recovered:', recovered)
+    assert recovered == SECRET
+    print('Success!')
+    print()
