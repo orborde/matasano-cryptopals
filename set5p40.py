@@ -72,8 +72,8 @@ def iroot(a,b):
 
 def attack(vend):
     vends = [vend() for _ in range(3)]
-    assert all(e == 3 for _,_,e in vends)
     c, n, e = (list(i) for i in zip(*vends))
+    assert all(e == 3 for e in e)
     m_s = [
         c[1]*c[2],
         c[0]*c[2],
