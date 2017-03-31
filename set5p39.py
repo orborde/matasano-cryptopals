@@ -61,6 +61,10 @@ def extended_gcd(a, b):
         (old_t, t) = (t, old_t - quotient * t)
     return old_r, old_s, old_t, t, s
 
+def gcd(a, b):
+    gcd, _, _, _, _ = extended_gcd(a, b)
+    return gcd
+
 def invmod(x, mod):
     """Find the multiplicative inverse of 'x' mod 'mod'.
 
@@ -82,5 +86,7 @@ class Invmod(unittest.TestCase):
         for x in range(1,101):
             for mod in range(x+1, 101):
                 ix = invmod(x, mod)
-                if ix is not None:
+                if ix is None:
+                    self.assertNotEqual(gcd(x, mod), 1)
+                else:
                     self.assertEqual((x*ix)%mod, 1)
