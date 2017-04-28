@@ -81,10 +81,7 @@ def attack(vend):
     ]
     # I swear that I spent a while thinking about how to attack this
     # before I copy-pasted in this equation! :P
-    result = (
-        (c[0] * m_s[0] * util.invmod(m_s[0], n[0])) +
-        (c[1] * m_s[1] * util.invmod(m_s[1], n[1])) +
-        (c[2] * m_s[2] * util.invmod(m_s[2], n[2])))
+    result = util.crt_invert(n, c)
     # THE INSTRUCTIONS ARE FULL OF LIIIIIES.
     result = result % (n[0]*n[1]*n[2])
     m = iroot(3, result)

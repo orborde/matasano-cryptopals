@@ -68,6 +68,23 @@ class Invmod(unittest.TestCase):
                 else:
                     self.assertEqual((x*ix)%mod, 1)
 
+def sumprod(seq):
+    q = 1
+    for x in seq:
+        q *= x
+    return q
+
+def crt_invert(mods, residues):
+    assert len(mods) == len(residues)
+    sm = 0
+    for i, t in enumerate(zip(mods, residues)):
+        m, r = t
+        m_s = sumprod(mods[:i] + mods[(i+1):])
+        v = r * m_s * invmod(m_s, m)
+        sm += v
+    # THE P40 INSTRUCTIONS ARE FULL OF LIIIIIES.
+    return sm%sumprod(mods)
+
 import doctest
 def load_tests(loader, tests, ignore):
     tests.addTests(doctest.DocTestSuite())
