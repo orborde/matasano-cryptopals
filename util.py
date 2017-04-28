@@ -27,6 +27,47 @@ def int2bytes(n, length):
     assert(len(out) <= length)
     return bytes(zero_suffix(out, length))
 
+def extended_gcd(a, b):
+    s, old_s = 0, 1
+    t, old_t = 1, 0
+    r, old_r = b, a
+    while r != 0:
+        quotient = old_r // r
+        (old_r, r) = (r, old_r - quotient * r)
+        (old_s, s) = (s, old_s - quotient * s)
+        (old_t, t) = (t, old_t - quotient * t)
+    return old_r, old_s, old_t, t, s
+
+def gcd(a, b):
+    gcd, _, _, _, _ = extended_gcd(a, b)
+    return gcd
+
+def invmod(x, mod):
+    """Find the multiplicative inverse of 'x' mod 'mod'.
+
+    >>> invmod(3, 5)
+    2
+    >>> invmod(17, 3120)
+    2753
+    """
+    gcd, r, _, _, _ = extended_gcd(x, mod)
+    if gcd == 1:
+        return r % mod
+    else:
+        return None
+
+import itertools
+import unittest
+class Invmod(unittest.TestCase):
+    def test_lots(self):
+        for x in range(1,101):
+            for mod in range(x+1, 101):
+                ix = invmod(x, mod)
+                if ix is None:
+                    self.assertNotEqual(gcd(x, mod), 1)
+                else:
+                    self.assertEqual((x*ix)%mod, 1)
+
 import doctest
 def load_tests(loader, tests, ignore):
     tests.addTests(doctest.DocTestSuite())
