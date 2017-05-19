@@ -329,6 +329,14 @@ def english_letters_log_metric(vec):
     return sum(vec.count(letter) * val
                for letter,val in ENGLISH_LETTERS_LOG_FREQUENCIES.items())
 
+def english_letters_multinomial_metric(vec, not_found_value=0.0001):
+    out = 1
+    for c in vec:
+        if c in ENGLISH_LETTER_FREQUENCIES:
+            out *= ENGLISH_LETTER_FREQUENCIES[c]
+        else:
+            out *= not_found_value
+    return out
 
 #from fractions import Fraction
 
