@@ -397,10 +397,10 @@ def crack_xorchar(vec, metric=english_words_metric):
 def run_p3():
     decrypts = crack_xorchar(h2b(INPUT_3))
 
-    k, t = decrypts[0]
+    key, plaintext = decrypts[0]
     print('Problem 3')
-    print('Best key is:', k)
-    print('Best plaintext is:', t)
+    print('Best key is:', key)
+    print('Best plaintext is:', plaintext)
     #print('Others:')
     #for k, t in decrypts[:10]:
     #    print(k, english_letters_metric(t), t)
